@@ -1,13 +1,13 @@
 import requests
 import sys
 import time
-from config import credentials, customer_id
+from config import credentials, customer_id, url
 
 
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
-	sso = requests.post("https://sso.8x8.com/oauth2/v1/token", headers=headers, data=payload)
+	sso = requests.post(f"https://sso.{url}/oauth2/v1/token", headers=headers, data=payload)
 	return sso.json()["access_token"]
 
 
@@ -17,7 +17,7 @@ bearer = {'Authorization': 'Bearer ' + authentication()}  # Bearer token for the
 # 1 - Customer Validation
 # Checking if the customer exists in '/customers' in SMP.
 def check_customers():
-	customers = requests.get(f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}", headers=bearer)
+	customers = requests.get(f"https://platform.{url}/vo/config/v1/customers/{customer_id}", headers=bearer)
 	time.sleep(1)
 	if customers.ok:
 		if customers.json()["pageResultSize"] != 0:
@@ -79,7 +79,7 @@ def pbx_payload():
 
 def create_pbx():
 	print(f"Creating a PBX for {customer_id} & taking a 3 min break for it to be processed.")
-	pbx_data = requests.post(f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}/pbxes", headers=bearer,
+	pbx_data = requests.post(f"https://platform.{url}/vo/config/v1/customers/{customer_id}/pbxes", headers=bearer,
 							 json=pbx_payload())
 	if pbx_data.ok:
 		print("Done. Step two completed!")
@@ -91,7 +91,7 @@ def create_pbx():
 
 
 def check_pbxes():
-	pbxes = requests.get(f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}/pbxes", headers=bearer)
+	pbxes = requests.get(f"https://platform.{url}/vo/config/v1/customers/{customer_id}/pbxes", headers=bearer)
 	time.sleep(1)
 	if pbxes.ok:
 		if pbxes.json()["pageResultSize"] != 0:
@@ -154,7 +154,7 @@ def branch_payload():
 def create_branch():
 	# Creating the branch.
 	branch_data = requests.post(
-		f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}/pbxes/{get_pbx()}/branches",
+		f"https://platform.{url}/vo/config/v1/customers/{customer_id}/pbxes/{get_pbx()}/branches",
 		headers=bearer, json=branch_payload())
 	if branch_data.ok:
 		print(f"Created a branch for {customer_id}. Step three completed! Taking a 2 sec break.")
@@ -166,7 +166,7 @@ def create_branch():
 
 
 def check_branch():
-	branch = requests.get(f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}/branches", headers=bearer)
+	branch = requests.get(f"https://platform.{url}/vo/config/v1/customers/{customer_id}/branches", headers=bearer)
 	time.sleep(1)
 	if branch.ok:
 		if branch.json()["pageResultSize"] != 0:
@@ -187,7 +187,7 @@ check_branch()
 def create_call_park():
 	# Creating the Call-Park data.
 	call_park_data = requests.post(
-		f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}/pbxes/{get_pbx()}/callparks/_default",
+		f"https://platform.{url}/vo/config/v1/customers/{customer_id}/pbxes/{get_pbx()}/callparks/_default",
 		headers=bearer)
 	if call_park_data.ok:
 		print(f"Created the Call-Park data for {customer_id}. Step four completed! Taking a 2 sec break.")
@@ -200,7 +200,7 @@ def create_call_park():
 
 def check_call_park():
 	call_park = requests.get(
-		f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}/pbxes/{get_pbx()}/callparks/",
+		f"https://platform.{url}/vo/config/v1/customers/{customer_id}/pbxes/{get_pbx()}/callparks/",
 		headers=bearer)
 	time.sleep(1)
 	if call_park.ok:
@@ -245,7 +245,7 @@ def user_payload():
 
 def create_user_db():
 	# Creating the main admin.
-	user_db = requests.post(f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}/users", headers=bearer,
+	user_db = requests.post(f"https://platform.{url}/vo/config/v1/customers/{customer_id}/users", headers=bearer,
 							json=user_payload())
 	if user_db.ok:
 		print(f"Created the main admin for {customer_id}. Step five, part one, completed! Taking a 2 sec break.")
@@ -257,7 +257,7 @@ def create_user_db():
 
 
 def check_user_db():
-	user_db = requests.get(f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}/users/",
+	user_db = requests.get(f"https://platform.{url}/vo/config/v1/customers/{customer_id}/users/",
 						   headers=bearer)
 	time.sleep(1)
 	if user_db.ok:
@@ -297,7 +297,7 @@ def role_payload():
 def create_admin_role():
 	# Creating the main admin.
 	admin_role = requests.post(
-		f"https://platform.8x8.com/rolemgmt/v1/customers/{customer_id}/accessors/{get_user()}/roles", headers=bearer,
+		f"https://platform.{url}/rolemgmt/v1/customers/{customer_id}/accessors/{get_user()}/roles", headers=bearer,
 		json=role_payload())
 	if admin_role.ok:
 		print(f"Created the admin role for user {get_user()}. Step five, part two, completed! Taking a 2 sec break.")
@@ -310,7 +310,7 @@ def create_admin_role():
 
 def check_user_role():
 	user_role = requests.get(
-		f"https://platform.8x8.com/rolemgmt/v1/customers/{customer_id}/accessors/{get_user()}/roles", headers=bearer)
+		f"https://platform.{url}/rolemgmt/v1/customers/{customer_id}/accessors/{get_user()}/roles", headers=bearer)
 	time.sleep(1)
 	if user_role.ok:
 		if user_role.json()["pageResultSize"] != 0:
@@ -368,7 +368,7 @@ def create_rbac_permissions():
 		'Rbac-Override-Tenant-Id': f'{customer_id}'
 	}
 	rbac_permissions = requests.post(
-		f"https://platform.8x8.com/rolemgmt/v1/customers/{customer_id}/accessors/{get_user()}/roles", headers=headers,
+		f"https://platform.{url}/rolemgmt/v1/customers/{customer_id}/accessors/{get_user()}/roles", headers=headers,
 		json=rbac_payload())
 	if rbac_permissions.ok:
 		print(f"Created the admin role for {get_user()}.")
@@ -386,7 +386,7 @@ def check_rbac_permissions():
 		'Rbac-Override-Tenant-Id': f'{customer_id}'
 	}
 	user_role = requests.get(
-		f'https://cloud8.8x8.com/rbac/api/v1/admin/assignments?filter=matchingRule.rule=="userId == \\"{get_user()}\\""',
+		f'https://cloud8.{url}/rbac/api/v1/admin/assignments?filter=matchingRule.rule=="userId == \\"{get_user()}\\""',
 		headers=headers)
 	time.sleep(1)
 	if user_role.ok:

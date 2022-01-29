@@ -1,13 +1,13 @@
 import requests
 import sys
 import time
-from config import credentials
+from config import credentials, url
 
 
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
-	sso = requests.post("https://sso.8x8.com/oauth2/v1/token", headers=headers, data=payload)
+	sso = requests.post(f"https://sso.{url}/oauth2/v1/token", headers=headers, data=payload)
 	return sso.json()["access_token"]
 
 
@@ -22,7 +22,7 @@ if len(customerid) < 18:
 
 def check_available_dids():
 	available = requests.get(
-		f"https://platform.8x8.com/vo/config/v1/customers/{customerid}/dids?filter=status==AVAILABLE", headers=bearer)
+		f"https://platform.{url}/vo/config/v1/customers/{customerid}/dids?filter=status==AVAILABLE", headers=bearer)
 	if available.status_code == 200:
 		if available.json()["pageResultSize"] != 0:
 			return available.json()["content"]
@@ -43,7 +43,7 @@ count = 0
 if confirm in ["Y", "y"]:
 	for did in dids:
 		deleting_dids = requests.delete(
-			f"https://platform.8x8.com/vo/config/v1/customers/{customerid}/dids/{did['didId']}", headers=bearer)
+			f"https://platform.{url}/vo/config/v1/customers/{customerid}/dids/{did['didId']}", headers=bearer)
 		count += 1
 		time.sleep(2)
 	print(f"{count} dids deleted for {customerid}.")

@@ -1,13 +1,13 @@
 import requests
 import sys
 import time
-from config import credentials
+from config import credentials, url
 
 
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
-	sso = requests.post("https://sso.8x8.com/oauth2/v1/token", headers=headers, data=payload)
+	sso = requests.post(f"https://sso.{url}/oauth2/v1/token", headers=headers, data=payload)
 	return sso.json()["access_token"]
 
 
@@ -34,7 +34,7 @@ if len(customerid) < 1:
 
 def check_subscriptionid():
 	subscription = requests.get(
-		f"https://platform.8x8.com/vo/config/v1/customers/{customerid}/pbxes/{pbxid}/didbindings?filter=subscriptionId=={subscriptionid}",
+		f"https://platform.{url}/vo/config/v1/customers/{customerid}/pbxes/{pbxid}/didbindings?filter=subscriptionId=={subscriptionid}",
 		headers=bearer)
 	if subscription.status_code == 200:
 		if subscription.json()["pageResultSize"] != 0:
@@ -58,7 +58,7 @@ if confirm in ["Y", "y"]:
 	for subscription in subscriptions:
 		# print(subscription["didBindingId"])
 		didbindings = requests.delete(
-			f"https://platform.8x8.com/vo/config/v1/customers/{customerid}/pbxes/{pbxid}/didbindings/{subscription['didBindingId']}",
+			f"https://platform.{url}/vo/config/v1/customers/{customerid}/pbxes/{pbxid}/didbindings/{subscription['didBindingId']}",
 			headers=bearer)
 		count += 1
 		time.sleep(2)

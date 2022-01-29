@@ -1,13 +1,13 @@
 import requests
 import sys
 import time
-from config import credentials
+from config import credentials, url
 
 
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
-	sso = requests.post("https://sso.8x8.com/oauth2/v1/token", headers=headers, data=payload)
+	sso = requests.post(f"https://sso.{url}/oauth2/v1/token", headers=headers, data=payload)
 	return sso.json()["access_token"]
 
 
@@ -24,14 +24,14 @@ file = open("output.csv", "a", encoding="utf-8")
 
 for a_license in licenses:
 	get_user = requests.get(
-		f"https://platform.8x8.com/license/v1/customers/{customer}/licenses/{a_license}", headers=bearer)
+		f"https://platform.{url}/license/v1/customers/{customer}/licenses/{a_license}", headers=bearer)
 	if get_user.ok:
 		if get_user.json()["pageResultSize"] != 0:
 			content = get_user.json()["content"]
 			for user in content:
 				if "userId" in user:
 					get_name = requests.get(
-						f'https://platform.8x8.com/vo/config/v1/customers/{customer}/users/{user["userId"]}', headers=bearer)
+						f'https://platform.{url}/vo/config/v1/customers/{customer}/users/{user["userId"]}', headers=bearer)
 					if get_name.ok:
 						name_content = get_name.json()["content"]
 						for name in name_content:

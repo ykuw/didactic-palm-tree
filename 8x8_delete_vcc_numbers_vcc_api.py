@@ -1,13 +1,13 @@
 import requests
 import sys
 import time
-from config import credentials
+from config import credentials, url
 
 
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
-	sso = requests.post("https://sso.8x8.com/oauth2/v1/token", headers=headers, data=payload)
+	sso = requests.post(f"https://sso.{url}/oauth2/v1/token", headers=headers, data=payload)
 	return sso.json()["access_token"]
 
 
@@ -34,7 +34,7 @@ if confirmation in ["Y", "y"]:
 		xml = f'<request><user id="pma" agent="Account Manager"></user><phone clidblk="enabled" calling-name="8x8, ' \
 			  f'Inc." site="{site}" cluster="{cluster}"></phone></request>'
 		delete_number = requests.post(
-			f"https://vcc-provapi-prod.8x8.com/tenant/{tenant}/phone/delete/{number}", headers=bearer, data=xml)
+			f"https://vcc-provapi-prod.{url}/tenant/{tenant}/phone/delete/{number}", headers=bearer, data=xml)
 		if delete_number.status_code == 200:
 			print(f"Successfully removed {number} from {tenant}!")
 			count += 1

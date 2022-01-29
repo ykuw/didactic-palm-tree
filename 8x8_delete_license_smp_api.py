@@ -1,13 +1,13 @@
 import requests
 import sys
 import datetime
-from config import credentials, customer_id
+from config import credentials, customer_id, url
 
 
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
-	sso = requests.post("https://sso.8x8.com/oauth2/v1/token", headers=headers, data=payload)
+	sso = requests.post(f"https://sso.{url}/oauth2/v1/token", headers=headers, data=payload)
 	return sso.json()["access_token"]
 
 
@@ -35,7 +35,7 @@ if confirmation in ["Y", "y"]:
 	for row in file.readlines():
 		a_license = row.strip("\n")
 		remove_license = requests.delete(
-			f"https://platform.8x8.com/license/v1/customers/{customer_id}/licenses/{a_license}", headers=bearer)
+			f"https://platform.{url}/license/v1/customers/{customer_id}/licenses/{a_license}", headers=bearer)
 		if remove_license.ok:
 			print(f"{a_license} removed for {customer_id}.")
 			count += 1

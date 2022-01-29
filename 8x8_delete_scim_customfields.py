@@ -1,13 +1,13 @@
 import requests
 import sys
 import datetime
-from config import credentials, customer_id
+from config import credentials, customer_id, url
 
 
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
-	sso = requests.post("https://sso.8x8.com/oauth2/v1/token", headers=headers, data=payload)
+	sso = requests.post(f"https://sso.{url}/oauth2/v1/token", headers=headers, data=payload)
 	return sso.json()["access_token"]
 
 
@@ -20,7 +20,7 @@ if not log.writable():
 
 
 def get_users():  # Getting the user list.
-	users = requests.get(f"https://platform.8x8.com/directory/v1/customers/{customer_id}/users/", headers=bearer)
+	users = requests.get(f"https://platform.{url}/directory/v1/customers/{customer_id}/users/", headers=bearer)
 	print(f"Getting user list for {customer_id}.")
 	log.write(f"[{datetime.datetime.now()}]\tGetting user list for {customer_id}.\t{users.request.url}\n")
 	if users.ok:
@@ -37,7 +37,7 @@ def get_scim_user_data():  # Getting the SCIM data for each user.
 	count = 0
 	count_no_scim = 0
 	for user in get_users():
-		get_user = requests.get(f"https://platform.8x8.com/directory/v1/customers/{customer_id}/users/{user['userId']}?"
+		get_user = requests.get(f"https://platform.{url}/directory/v1/customers/{customer_id}/users/{user['userId']}?"
 								f"scope=expand(clientdata)'", headers=bearer)
 		if get_user.ok:
 			if "scimPlatform" in get_user.json()["content"]:
