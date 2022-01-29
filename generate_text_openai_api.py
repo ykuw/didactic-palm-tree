@@ -1,7 +1,7 @@
 import os
 import openai
 
-openai.api_key = "sk-rOmJSraSaUWU9G9ifHcWbKvw2QFL8gaxT4DMjqcz"
+openai.api_key = ""
 
 text = input("Enter something and the AI will continue to complete it: ")
 
