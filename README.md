@@ -1,3 +1,3 @@
 # What's this?
 
-Collection of scripts I created from scratch or from what I found on Stack Overflow and changed them a bit.
+Collection of scripts I created from scratch or found on Stack Overflow and changed a bit.
