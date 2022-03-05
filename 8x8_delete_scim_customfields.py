@@ -40,15 +40,18 @@ def get_scim_user_data():  # Getting the SCIM data for each user.
 		get_user = requests.get(f"https://platform.{url}/directory/v1/customers/{customer_id}/users/{user['userId']}?"
 								f"scope=expand(clientdata)'", headers=bearer)
 		if get_user.ok:
-			if "scimPlatform" in get_user.json()["content"]:
-				print(f"SCIM data for {user['userId']}.")
-				scim_customfields_url.append(get_user.json()["scimPlatform"]["self"])
-				count += 1
-				log.write(f"[{datetime.datetime.now()}]\tSCIM data for {user['userId']}.\t{get_user.request.url}\n")
-			else:
-				print(f"No SCIM data for {user['userId']}.")
-				count_no_scim += 1
-				log.write(f"[{datetime.datetime.now()}]\tNo SCIM data for {user['userId']}.\t{get_user.request.url}\n")
+			for content in get_user.json()["content"]:
+				if "scimPlatform" in content:
+					print(f"SCIM data for {user['userId']}.")
+					scim_customfields_url.append(content["scimPlatform"]["self"])
+					count += 1
+					log.write(f"[{datetime.datetime.now()}]\tSCIM data for {user['userId']}.\t{get_user.request.url}\n")
+				else:
+					print(f"No SCIM data for {user['userId']}.")
+					print(get_user.json()["content"])
+					count_no_scim += 1
+					log.write(
+						f"[{datetime.datetime.now()}]\tNo SCIM data for {user['userId']}.\t{get_user.request.url}\n")
 		else:
 			print(f"Unable to get user data for {user['userId']}.")
 			log.write(f"[{datetime.datetime.now()}]\tUnable to get user data for {user['userId']}. "
