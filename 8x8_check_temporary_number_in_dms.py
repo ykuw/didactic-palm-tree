@@ -28,7 +28,7 @@ if not file.readable():  # Checking if we can read the text file.
 confirmation = input(f"Checking all numbers in the text file? Enter Y or N: ")
 
 count = 0  # Counter for all numbers found.
-count_different_status = 0  # Counter for all numbers with different status.
+count_different_status = 0  # Counter for all numbers with different statuses.
 count_not_found = 0  # Counter for all not found numbers.
 
 start_time = datetime.datetime.now()  # Time it started to check all numbers.
@@ -40,17 +40,17 @@ if confirmation in ["Y", "y"]:
 			f"https://platform.{url}/dms/v2/dids/?filter=phoneNumber==%2B{a_number}", headers=bearer)
 		if check_number.ok:
 			if check_number.json()["content"]:
-				for data in check_number.json()["content"]:
-					if data["status"] == "AGING":
-						print(f"{a_number} is in {data['status']} status.")
+				for content in check_number.json()["content"]:
+					if content["status"] == "AGING":
+						print(f"{a_number} has {content['status']} status.")
 						count += 1
 						log.write(
-							f"[{datetime.datetime.now()}]\tGET {check_number.request.url}\t{a_number} is in {data['status']} status.\n")
+							f"[{datetime.datetime.now()}]\tGET {check_number.request.url}\t{a_number} has {content['status']} status.\n")
 					else:
-						print(f"{a_number} has {data['status']} status.")
+						print(f"{a_number} has {content['status']} status.")
 						count_different_status += 1
 						log.write(
-							f"[{datetime.datetime.now()}]\tGET {check_number.request.url}\t{a_number} has {data['status']} status.\n")
+							f"[{datetime.datetime.now()}]\tGET {check_number.request.url}\t{a_number} has {content['status']} status.\n")
 			else:
 				print(f"{a_number} not found in DMS.")
 				count_not_found += 1
