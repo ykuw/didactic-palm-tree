@@ -40,8 +40,12 @@ def pbx_payload():
 	for info in customer:
 		if info["contactAddress"]["country"] == "GB":
 			region = "GBR"
-		elif info["contactAddress"]["country"] == "US":
-			region = "US"
+		elif (info["contactAddress"]["country"] == "US") or (info["contactAddress"]["country"] == "CA"):
+			region = "USA"
+		elif info["contactAddress"]["country"] == "AU":
+			region = "AUS"
+		elif info["contactAddress"]["country"] == "CN":
+			region = "CHN"
 		else:
 			region = input("The country is nor GB or US, enter it: ")
 		name = ''.join(e for e in info["name"].lower() if e.isalnum())
