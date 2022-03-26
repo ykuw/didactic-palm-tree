@@ -41,18 +41,20 @@ if confirmation in ["Y", "y"]:
 		if check_number.ok:
 			if check_number.json()["content"]:
 				for content in check_number.json()["content"]:
-					if content["status"] == "AGING":
+					if content["status"] == "AGING":  # Checking if the number has the AGING status.
 						print(f"{a_number} has {content['status']} status.")
 						count += 1
 						log.write(
-							f"[{datetime.datetime.now()}]\tGET {check_number.request.url}\t{a_number} has {content['status']} status.\n")
+							f"[{datetime.datetime.now()}]\tGET {check_number.request.url}\t{a_number} "
+							f"has {content['status']} status.\n")
 					else:
-						print(f"{a_number} has {content['status']} status.")
+						print(f"{a_number} has {content['status']} status.")  # Checking if the number has different status.
 						count_different_status += 1
 						log.write(
-							f"[{datetime.datetime.now()}]\tGET {check_number.request.url}\t{a_number} has {content['status']} status.\n")
+							f"[{datetime.datetime.now()}]\tGET {check_number.request.url}\t{a_number} "
+							f"has {content['status']} status.\n")
 			else:
-				print(f"{a_number} not found in DMS.")
+				print(f"{a_number} not found in DMS.")  # Checking if the number is not found in DMS.
 				count_not_found += 1
 				log.write(f"[{datetime.datetime.now()}]\t{a_number} not found in DMS.")
 		else:
