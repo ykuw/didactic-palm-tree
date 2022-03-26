@@ -35,11 +35,11 @@ start_time = datetime.datetime.now()  # Time it started to check all numbers.
 
 if confirmation in ["Y", "y"]:
 	for row in file.readlines():
-		a_number = row.strip("\n")
+		a_number = row.strip("\n")  # Getting one number from the text file.
 		check_number = requests.get(
 			f"https://platform.{url}/dms/v2/dids/?filter=phoneNumber==%2B{a_number}", headers=bearer)
 		if check_number.ok:
-			if check_number.json()["content"]:
+			if check_number.json()["content"]:  # Checking if there is content in the response with data.
 				for content in check_number.json()["content"]:
 					if content["status"] == "AGING":  # Checking if the number has the AGING status.
 						print(f"{a_number} has {content['status']} status.")
@@ -60,8 +60,10 @@ if confirmation in ["Y", "y"]:
 		else:
 			print(f"Unable to run the request. Response code: {check_number.status_code}.")
 			log.write(f"Unable to run the request. Response code: {check_number.status_code}.\n")
+
 	end_time = datetime.datetime.now()  # Time it ended.
 	time_elapsed = end_time - start_time  # Time it took to run the script successfully for all numbers.
+
 	print(f"{count} numbers found in DMS in {time_elapsed} in AGING status. {count_different_status} numbers with "
 		  f"different statuses. {count_not_found} numbers not found in DMS.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} numbers found in {time_elapsed}. {count_not_found} resulted in "
