@@ -10,7 +10,7 @@ const { peachpuff } = require('color-name');
 const { lookup } = require('dns');
 
 // Credentials and Environment
-const AuthToken = 'R0FTX3RlYW06ZWJmMzkwMWI4ODRk';
+const AuthToken = '';
 const SSOHOST = 'https://sso.8x8.com/oauth2/v1/token';
 const SSOAUTHHOST = 'sso.8x8.com';
 const APIHOST = 'platform.8x8.com';
