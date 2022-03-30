@@ -6,6 +6,22 @@ import ssl
 from config import credentials, url, site, cluster, customer_id
 
 
+if not credentials:  # Check if credentials are defined.
+	sys.exit("No credentials provided. Exiting the script.")
+
+if not url:  # Check if url is defined.
+	sys.exit("No URL provided. Exiting the script.")
+
+if not site:  # Check if site is defined.
+	sys.exit("No site provided. Exiting the script.")
+
+if not cluster:  # Check if cluster is defined.
+	sys.exit("No cluster provided. Exiting the script.")
+
+if not customer_id:  # Check if customer_id is defined.
+	sys.exit("No customer id provided. Exiting the script.")
+
+
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
@@ -32,12 +48,10 @@ log = open("apis.log", "a")  # Logging all API requests.
 file = open("numbers.txt", "r")  # Licenses to be removed.
 
 if not log.writable():  # Checking if we can write the log file.
-	print("Cannot write the log file.")
-	sys.exit()
+	sys.exit("The log file is not writable. Exiting the script.")
 
 if not file.readable():  # Checking if we can read the text file.
-	print("Cannot read the text file.")
-	sys.exit()
+	sys.exit("The text file is not readable. Exiting the script.")
 
 confirmation = input(f"Do you want to remove all numbers the text file for {customer_id}? Enter Y or N: ")
 
@@ -56,13 +70,12 @@ if confirmation in ["Y", "y"]:
 					  f"{customer_id}!\t{delete_number.request.url}\t{delete_number.status_code}\t{delete_number.request.body}\n")
 			count += 1
 		else:
-			print(f"Unable to execute the API request. Response code is {delete_number.status_code}.")
 			log.write(f"[{datetime.datetime.now()}]\tUnable to execute the API request. Response code "
 					  f"is {delete_number.status_code}\t{delete_number.request.url}\t{delete_number.request.body}\n")
-			sys.exit()
+			sys.exit(f"Unable to execute the API request. Response code is {delete_number.status_code}.")
+
 	print(f"{count} telephone numbers removed for {customer_id} from VCC CM.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} telephone numbers deleted for {customer_id} from VCC CM.\n")
 else:
-	print("Operation aborted.")
 	log.write(f"[{datetime.datetime.now()}]\tOperation aborted.\n")
-	sys.exit()
+	sys.exit("Operation aborted.")

@@ -4,6 +4,13 @@ import time
 from config import credentials, url
 
 
+if not credentials:  # Check if credentials are defined.
+	sys.exit("No credentials provided. Exiting the script.")
+
+if not url:  # Check if url is defined.
+	sys.exit("No URL provided. Exiting the script.")
+
+
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
@@ -16,20 +23,17 @@ bearer = {'Authorization': 'Bearer ' + authentication()}  # Bearer token for the
 # Getting the customer id.
 customerid = input("Enter the customer id: ")
 if len(customerid) < 18:
-	print("Enter a valid customer id.")
-	sys.exit()
+	sys.exit("Customer id length is less than 18 characters. Exiting the script.")
 
 # Getting the pbx id.
 pbxid = input("Enter the pbx id: ")
 if len(customerid) < 1:
-	print("Enter a valid pbx id.")
-	sys.exit()
+	sys.exit("Pbx id length is less than 1 characters. Exiting the script.")
 
 # Getting the subscription id.
 subscriptionid = input("Enter the subscription id: ")
 if len(customerid) < 1:
-	print("Enter a valid subscription id.")
-	sys.exit()
+	sys.exit("Subscription id length is less than 1 characters. Exiting the script.")
 
 
 def check_subscriptionid():
@@ -42,8 +46,7 @@ def check_subscriptionid():
 		else:
 			print(f"No PBX created for {customerid}. Creating it now based on the /customers data.")
 	else:
-		print(f"Unable to execute the GET API request. Response code: {subscription.status_code}.")
-		sys.exit()
+		sys.exit(f"Unable to execute the GET API request. Response code: {subscription.status_code}.")
 
 
 subscriptions = check_subscriptionid()
@@ -64,5 +67,4 @@ if confirm in ["Y", "y"]:
 		time.sleep(2)
 	print(f"{count} didbindings deleted for subscription {subscriptionid}, pbx {pbxid}, customer {customerid}.")
 else:
-	print("Operation aborted.")
-	sys.exit()
+	sys.exit("Exiting the script.")

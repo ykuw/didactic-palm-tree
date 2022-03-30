@@ -1,7 +1,17 @@
 import requests
 import sys
 import time
-from config import credentials, customer_id, url
+from config import credentials, url, customer_id
+
+
+if not credentials:  # Check if credentials are defined.
+	sys.exit("No credentials provided. Exiting the script.")
+
+if not url:  # Check if url is defined.
+	sys.exit("No URL provided. Exiting the script.")
+
+if not customer_id:  # Check if customer_id is defined.
+	sys.exit("No customer_id provided. Exiting the script.")
 
 
 def authentication():  # Getting the token.
@@ -14,6 +24,12 @@ def authentication():  # Getting the token.
 bearer = {'Authorization': 'Bearer ' + authentication()}  # Bearer token for the API requests.
 
 
+log = open("apis.log", "a")  # Logging all API requests.
+
+if not log.writable():  # Checking if we can write the log file.
+	sys.exit("The log file is not writable. Exiting the script.")
+
+
 # 1 - Customer Validation
 # Checking if the customer exists in '/customers' in SMP.
 def check_customers():
@@ -21,15 +37,18 @@ def check_customers():
 	time.sleep(1)
 	if customers.ok:
 		if customers.json()["pageResultSize"] != 0:
+			log.write(customers.json()["content"])
 			return customers.json()["content"]
 		else:
-			print(f"No results for {customer_id}. Have you typed the correct customer id?")
-			print(f"If not, possibly the workflow needs to be restarted.")
-			sys.exit()
+			log.write(f"No results for {customer_id}. Have you typed the correct customer id? If not, possibly the "
+					 f"workflow needs to be restarted.")
+			sys.exit(f"No results for {customer_id}. Have you typed the correct customer id? If not, possibly the "
+					 f"workflow needs to be restarted.")
 	else:
-		print(f"Unable to execute the GET API request. Response code: {customers.status_code}. Step one.")
-		print(customers.request.url)
-		sys.exit()
+		log.write(f"Unable to execute the GET API request. Response code: {customers.status_code}. Step one. - "
+				 f"{customers.request.url}")
+		sys.exit(f"Unable to execute the GET API request. Response code: {customers.status_code}. Step one. - "
+				 f"{customers.request.url}")
 
 
 customer = check_customers()
@@ -87,11 +106,13 @@ def create_pbx():
 							 json=pbx_payload())
 	if pbx_data.ok:
 		print("Done. Step two completed!")
+		log.write(f"Done. Step two completed!\t{pbx_data.request.url}\t{pbx_data.request.body}\t{pbx_data.request.headers}")
 		time.sleep(180)
 	else:
-		print(f"Unable to create the PBX. Status code returned is {pbx_data.status_code}. Step two.")
-		print(pbx_data.request.url, pbx_data.request.body, pbx_data.request.headers)
-		sys.exit()
+		log.write(f"Unable to execute the POST API request. Response code: {pbx_data.status_code}. Step two. - "
+				  f"{pbx_data.request.url}\t{pbx_data.request.body}\t{pbx_data.request.headers}")
+		sys.exit(f"Unable to create the PBX. Status code returned is {pbx_data.status_code}. Step two. - "
+				 f"{pbx_data.request.url}\t{pbx_data.request.body}\t{pbx_data.request.headers}")
 
 
 def check_pbxes():
@@ -99,14 +120,17 @@ def check_pbxes():
 	time.sleep(1)
 	if pbxes.ok:
 		if pbxes.json()["pageResultSize"] != 0:
+			log.write(pbxes.json()["content"])
 			return pbxes.json()["content"]
 		else:
 			print(f"No PBX created for {customer_id}. Creating it now based on the '/customers' data.")
+			log.write(f"No PBX created for {customer_id}. Creating it now based on the '/customers' data.")
 			create_pbx()
 	else:
-		print(f"Unable to execute the GET API request. Response code: {pbxes.status_code}. Step two.")
-		print(pbxes.request.url)
-		sys.exit()
+		log.write(f"Unable to execute the GET API request. Response code: {pbxes.status_code}. Step two. - "
+				  f"{pbxes.request.url}\t{pbxes.request.body}\t{pbxes.request.headers}")
+		sys.exit(f"Unable to execute the GET API request. Response code: {pbxes.status_code}. Step two. - "
+				 f"{pbxes.request.url}")
 
 
 check_pbxes()
@@ -115,6 +139,7 @@ check_pbxes()
 def get_pbx():
 	for pbx in check_pbxes():
 		if pbx["pbxId"] != '':
+			log.write(f"PBX ID: {pbx['pbxId']}")
 			return pbx["pbxId"]
 		break
 
@@ -162,11 +187,13 @@ def create_branch():
 		headers=bearer, json=branch_payload())
 	if branch_data.ok:
 		print(f"Created a branch for {customer_id}. Step three completed! Taking a 2 sec break.")
+		log.write(f"Created a branch for {customer_id}. Step three completed! Taking a 2 sec break.")
 		time.sleep(2)
 	else:
-		print(f"Unable to create a branch. Response code {branch_data.status_code}. Step three.")
-		print(branch_data.request.url, branch_data.request.body, branch_data.request.headers)
-		sys.exit()
+		log.write(f"Unable to create a branch. Response code {branch_data.status_code}. Step three. - "
+				  f"{branch_data.request.url}\t{branch_data.request.body}\t{branch_data.request.headers}")
+		sys.exit(f"Unable to create a branch. Response code {branch_data.status_code}. Step three. - "
+				 f"{branch_data.request.url}, {branch_data.request.body}, {branch_data.request.headers}")
 
 
 def check_branch():
@@ -175,13 +202,16 @@ def check_branch():
 	if branch.ok:
 		if branch.json()["pageResultSize"] != 0:
 			print("Checking if there is branch data.")
+			log.write("Checking if there is branch data.")
 		else:
 			print(f"No branch created for {customer_id}. Creating it now based on the '/customers' data.")
+			log.write(f"No branch created for {customer_id}. Creating it now based on the '/customers' data.")
 			create_branch()
 	else:
-		print(f"Unable to execute the GET API request. Response code: {branch.status_code}. Step three.")
-		print(branch.request.url)
-		sys.exit()
+		log.write(f"Unable to execute the GET API request. Response code: {branch.status_code}. Step three. - "
+				  f"{branch.request.url}\t{branch.request.body}\t{branch.request.headers}")
+		sys.exit(f"Unable to execute the GET API request. Response code: {branch.status_code}. Step three. - "
+				 f"{branch.request.url}")
 
 
 check_branch()
@@ -195,11 +225,13 @@ def create_call_park():
 		headers=bearer)
 	if call_park_data.ok:
 		print(f"Created the Call-Park data for {customer_id}. Step four completed! Taking a 2 sec break.")
+		log.write(f"Created the Call-Park data for {customer_id}. Step four completed! Taking a 2 sec break.")
 		time.sleep(2)
 	else:
-		print(f"Unable to execute the POST API request. Response code {call_park_data.status_code}. Step four.")
-		print(call_park_data.request.url, call_park_data.request.body, call_park_data.request.headers)
-		sys.exit()
+		log.write(f"Unable to create the Call-Park data. Response code {call_park_data.status_code}. Step four. - "
+				  f"{call_park_data.request.url}\t{call_park_data.request.body}\t{call_park_data.request.headers}")
+		sys.exit(f"Unable to execute the POST API request. Response code {call_park_data.status_code}. Step four. - "
+				 f"{call_park_data.request.url}, {call_park_data.request.body}, {call_park_data.request.headers}")
 
 
 def check_call_park():
@@ -210,13 +242,16 @@ def check_call_park():
 	if call_park.ok:
 		if call_park.json()["pageResultSize"] != 0:
 			print("Checking if there is call park data.")
+			log.write("Checking if there is call park data.")
 		else:
 			print(f"There is no call park data for {customer_id}. Creating it now on PBX {get_pbx()}.")
+			log.write(f"There is no call park data for {customer_id}. Creating it now on PBX {get_pbx()}.")
 			create_call_park()
 	else:
-		print(f"Unable to execute the GET API request. Response code: {call_park.status_code}. Step four.")
-		print(call_park.request.url)
-		sys.exit()
+		log.write(f"Unable to execute the GET API request. Response code: {call_park.status_code}. Step four. - "
+				  f"{call_park.request.url}\t{call_park.request.body}\t{call_park.request.headers}")
+		sys.exit(f"Unable to execute the GET API request. Response code: {call_park.status_code}. Step four. -"
+				 f"{call_park.request.url}")
 
 
 check_call_park()
@@ -253,11 +288,13 @@ def create_user_db():
 							json=user_payload())
 	if user_db.ok:
 		print(f"Created the main admin for {customer_id}. Step five, part one, completed! Taking a 2 sec break.")
+		log.write(f"Created the main admin for {customer_id}. Step five, part one, completed! Taking a 2 sec break.")
 		time.sleep(2)
 	else:
-		print(f"Unable to execute the POST API request. Response code {user_db.status_code}. Step five, part one.")
-		print(user_db.request.url, user_db.request.body, user_db.request.headers)
-		sys.exit()
+		log.write(f"Unable to create the main admin. Response code {user_db.status_code}. Step five, part one. - "
+				  f"{user_db.request.url}\t{user_db.request.body}\t{user_db.request.headers}")
+		sys.exit(f"Unable to execute the POST API request. Response code {user_db.status_code}. Step five, part one. - "
+				 f"{user_db.request.url}, {user_db.request.body}, {user_db.request.headers}")
 
 
 def check_user_db():
@@ -266,14 +303,17 @@ def check_user_db():
 	time.sleep(1)
 	if user_db.ok:
 		if user_db.json()["pageResultSize"] != 0:
+			log.write(f"Checking if there is user data. {user_db.json()['content']}")
 			return user_db.json()["content"]
 		else:
 			print(f"There is no user data for {customer_id}. Creating a main admin.")
+			log.write(f"There is no user data for {customer_id}. Creating a main admin.")
 			create_user_db()
 	else:
-		print(f"Unable to execute the GET API request. Response code: {user_db.status_code}. Step five, part one.")
-		print(user_db.request.url)
-		sys.exit()
+		log.write(f"Unable to execute the GET API request. Response code: {user_db.status_code}. Step five, part one. - "
+				  f"{user_db.request.url}\t{user_db.request.body}\t{user_db.request.headers}")
+		sys.exit(f"Unable to execute the GET API request. Response code: {user_db.status_code}. Step five, part one. -"
+				 f"{user_db.request.url}")
 
 
 check_user_db()
@@ -282,6 +322,7 @@ check_user_db()
 def get_user():
 	for user in check_user_db():
 		if user["userId"] != '':
+			log.write(f"User ID: {user['userId']}")
 			return user["userId"]
 		break
 
@@ -305,11 +346,13 @@ def create_admin_role():
 		json=role_payload())
 	if admin_role.ok:
 		print(f"Created the admin role for user {get_user()}. Step five, part two, completed! Taking a 2 sec break.")
+		log.write(f"Created the admin role for user {get_user()}. Step five, part two, completed! Taking a 2 sec break.")
 		time.sleep(2)
 	else:
-		print(f"Unable to execute the POST API request. Response code {admin_role.status_code}. Step five, part two.")
-		print(admin_role.request.url, admin_role.request.body, admin_role.request.headers)
-		sys.exit()
+		log.write(f"Unable to create the admin role. Response code {admin_role.status_code}. Step five, part two. - "
+				  f"{admin_role.request.url}\t{admin_role.request.body}\t{admin_role.request.headers}")
+		sys.exit(f"Unable to execute the POST API request. Response code {admin_role.status_code}. Step five, part two. -"
+				 f"{admin_role.request.url}, {admin_role.request.body}, {admin_role.request.headers}")
 
 
 def check_user_role():
@@ -321,16 +364,20 @@ def check_user_role():
 			for role in user_role.json()["content"]:
 				if role["roleName"] == "CUSTOMER_ADMIN":
 					print(f"There is an admin role for user {get_user()}.")
+					log.write(f"There is an admin role for user {get_user()}.")
 				else:
 					print("The existent user is not an admin. Making it an admin now.")
+					log.write(f"The existent user is not an admin. Making it an admin now.")
 					create_admin_role()
 		else:
 			print(f"There is no role for the user. Creating one now.")
+			log.write(f"There is no role for the user. Creating one now.")
 			create_admin_role()
 	else:
-		print(f"Unable to execute the GET API request. Response code: {user_role.status_code}. Step five, part two.")
-		print(user_role.request.url)
-		sys.exit()
+		log.write(f"Unable to execute the GET API request. Response code: {user_role.status_code}. Step five, part two. -"
+				  f"{user_role.request.url}\t{user_role.request.body}\t{user_role.request.headers}")
+		sys.exit(f"Unable to execute the GET API request. Response code: {user_role.status_code}. Step five, part two. -"
+				 f"{user_role.request.url}")
 
 
 check_user_role()
@@ -376,11 +423,13 @@ def create_rbac_permissions():
 		json=rbac_payload())
 	if rbac_permissions.ok:
 		print(f"Created the admin role for {get_user()}.")
+		log.write(f"Created the admin role for {get_user()}.")
 		time.sleep(2)
 	else:
-		print(f"Unable to execute the POST API request. Response code {rbac_permissions.status_code}. Step six.")
-		print(rbac_permissions.request.url, rbac_permissions.request.body, rbac_permissions.request.headers)
-		sys.exit()
+		log.write(f"Unable to create the admin role. Response code {rbac_permissions.status_code}. Step six. - "
+				  f"{rbac_permissions.request.url}\t{rbac_permissions.request.body}\t{rbac_permissions.request.headers}")
+		sys.exit(f"Unable to execute the POST API request. Response code {rbac_permissions.status_code}. Step six. -"
+				 f"{rbac_permissions.request.url}, {rbac_permissions.request.body}, {rbac_permissions.request.headers}")
 
 
 def check_rbac_permissions():
@@ -396,13 +445,16 @@ def check_rbac_permissions():
 	if user_role.ok:
 		if user_role.json()["content"]:
 			print(f"RBAC permissions are present for {get_user()}.")
+			log.write(f"RBAC permissions are present for {get_user()}.")
 		else:
 			print(f"There are no RBAC permissions for the {get_user()}. Creating them now.")
+			log.write(f"There are no RBAC permissions for the {get_user()}. Creating them now.")
 			create_rbac_permissions()
 	else:
-		print(f"Step six. Unable to execute the GET API request. Response code: {user_role.status_code}. Step six.")
-		print(user_role.request.url)
-		sys.exit()
+		log.write(f"Unable to execute the GET API request. Response code: {user_role.status_code}. Step six. -"
+				  f"{user_role.request.url}\t{user_role.request.body}\t{user_role.request.headers}")
+		sys.exit(f"Step six. Unable to execute the GET API request. Response code: {user_role.status_code}. Step six. -"
+				 f"{user_role.request.url}")
 
 
 check_rbac_permissions()

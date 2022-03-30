@@ -4,6 +4,13 @@ import time
 from config import credentials, url
 
 
+if not credentials:  # Check if credentials are defined.
+	sys.exit("No credentials provided. Exiting the script.")
+
+if not url:  # Check if url is defined.
+	sys.exit("No URL provided. Exiting the script.")
+
+
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
@@ -16,8 +23,7 @@ bearer = {'Authorization': 'Bearer ' + authentication()}  # Bearer token for the
 # Getting the customer id.
 customerid = input("Enter the customer id: ")
 if len(customerid) < 18:
-	print("Enter a valid customer id.")
-	sys.exit()
+	sys.exit("Customer id length is less than 18. Exiting the script.")
 
 
 def check_available_dids():
@@ -27,11 +33,9 @@ def check_available_dids():
 		if available.json()["pageResultSize"] != 0:
 			return available.json()["content"]
 		else:
-			print(f"No available numbers for {customerid} that can be deleted.")
-			sys.exit()
+			sys.exit(f"No available numbers for {customerid} that can be deleted.")
 	else:
-		print(f"Unable to execute the GET API request. Response code: {available.status_code}.")
-		sys.exit()
+		sys.exit(f"Unable to execute the GET API request. Response code: {available.status_code}.")
 
 
 dids = check_available_dids()
@@ -48,5 +52,4 @@ if confirm in ["Y", "y"]:
 		time.sleep(2)
 	print(f"{count} dids deleted for {customerid}.")
 else:
-	print("Operation aborted.")
-	sys.exit()
+	sys.exit("Exiting the script.")

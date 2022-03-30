@@ -4,6 +4,19 @@ import datetime
 from config import credentials, customer_id, url, pbx_id
 
 
+if not credentials:  # Check if credentials are defined.
+	sys.exit("No credentials provided. Exiting the script.")
+
+if not url:  # Check if url is defined.
+	sys.exit("No URL provided. Exiting the script.")
+
+if not customer_id:  # Check if customer_id is defined.
+	sys.exit("No customer_id provided. Exiting the script.")
+
+if not pbx_id:  # Check if pbx_id is defined.
+	sys.exit("No pbx_id provided. Exiting the script.")
+
+
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
@@ -18,12 +31,10 @@ log = open("apis.log", "a")  # Logging all API requests.
 file = open("extensions.txt", "r")  # User extensions.
 
 if not log.writable():  # Checking if we can write the log file.
-	print("Cannot write the log file.")
-	sys.exit()
+	sys.exit("Can't write to the log file. Exiting the script.")
 
 if not file.readable():  # Checking if we can read the text file.
-	print("Cannot read the text file.")
-	sys.exit()
+	sys.exit("Can't read the text file. Exiting the script.")
 
 confirmation = input(f"Do you want to change the status for all users in the text file to false for {customer_id}? "
 					 f"Enter Y or N: ")
@@ -59,8 +70,7 @@ if confirmation in ["Y", "y"]:
 	print(f"{count} extensions updated in {time_elapsed}.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} extensions updated in {time_elapsed}.\n")
 else:
-	print("Operation cancelled.")
-	sys.exit()
+	sys.exit("Exiting the script.")
 
 file.close()
 log.close()

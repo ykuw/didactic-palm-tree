@@ -3,6 +3,20 @@ import sys
 import datetime
 from config import credentials, url, start_date, end_date
 
+
+if not credentials:  # Check if credentials are defined.
+	sys.exit("No credentials provided. Exiting the script.")
+
+if not url:  # Check if url is defined.
+	sys.exit("No URL provided. Exiting the script.")
+
+if not start_date:  # Check if start_date is defined.
+	sys.exit("No start_date provided. Exiting the script.")
+
+if not end_date:  # Check if end_date is defined.
+	sys.exit("No end_date provided. Exiting the script.")
+
+
 headers = {'Cookie': f'SESSION={credentials}', 'Content-Type': 'text/plain', 'AUTH_TYPE': 'BASE',
 		   'auth-secret': '48924jfn3459hf54fm4hf88!#%^%&*()_$'}  # Headers for the DELETE API request.
 
@@ -10,12 +24,10 @@ log = open("apis.log", "a")  # Logging all API requests.
 file = open("recordings.txt", "r")  # Licenses to be removed.
 
 if not log.writable():  # Checking if we can write the log file.
-	print("Cannot write the log file.")
-	sys.exit()
+	sys.exit("Cannot write to log file. Exiting the script.")
 
 if not file.readable():  # Checking if we can read the text file.
-	print("Cannot read the text file.")
-	sys.exit()
+	sys.exit("Cannot read from text file. Exiting the script.")
 
 confirmation = input(f"Do you want to remove all recordings from the text file for {credentials}? Enter Y or N: ")
 
@@ -46,8 +58,7 @@ if confirmation in ["Y", "y"]:
 	print(f"{count} licenses removed in {time_elapsed}.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} licenses removed in {time_elapsed}.\n")
 else:
-	print("Operation cancelled.")
-	sys.exit()
+	sys.exit("Exiting the script.")
 
 file.close()
 log.close()

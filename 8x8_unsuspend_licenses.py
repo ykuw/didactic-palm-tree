@@ -1,7 +1,17 @@
 import requests
 import sys
 import datetime
-from config import credentials, customer_id, url
+from config import credentials, url, customer_id
+
+
+if not credentials:  # Check if credentials are defined.
+	sys.exit("No credentials provided. Exiting the script.")
+
+if not url:  # Check if url is defined.
+	sys.exit("No URL provided. Exiting the script.")
+
+if not customer_id:  # Check if customer_id is defined.
+	sys.exit("No customer_id provided. Exiting the script.")
 
 
 def authentication():  # Getting the token.
@@ -18,12 +28,10 @@ log = open("apis.log", "a")  # Logging all API requests.
 file = open("licenses.txt", "r")  # Licenses to be unsuspended.
 
 if not log.writable():  # Checking if we can write the log file.
-	print("Cannot write the log file.")
-	sys.exit()
+	sys.exit("Cannot write to the log file. Exiting the script.")
 
 if not file.readable():  # Checking if we can read the text file.
-	print("Cannot read the text file.")
-	sys.exit()
+	sys.exit("Cannot read the text file. Exiting the script.")
 
 confirmation = input(f"Do you want to unsuspend all licenses from the text file for {customer_id}? Enter Y or N: ")
 
@@ -50,8 +58,7 @@ if confirmation in ["Y", "y"]:
 	print(f"{count} total licenses unsuspended in {time_elapsed}.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} total licenses unsuspended in {time_elapsed}.\n")
 else:
-	print("Operation cancelled.")
-	sys.exit()
+	sys.exit("Exiting the script.")
 
 file.close()
 log.close()

@@ -1,7 +1,17 @@
 import requests
 import sys
 import datetime
-from config import credentials, customer_id, url
+from config import credentials, url, customer_id
+
+
+if not credentials:  # Check if credentials are defined.
+	sys.exit("No credentials provided. Exiting the script.")
+
+if not url:  # Check if url is defined.
+	sys.exit("No URL provided. Exiting the script.")
+
+if not customer_id:  # Check if customer_id is defined.
+	sys.exit("No customer_id provided. Exiting the script.")
 
 
 def authentication():  # Getting the token.
@@ -15,8 +25,7 @@ bearer = {'Authorization': 'Bearer ' + authentication()}  # Bearer token for the
 
 log = open("dete_scim_customfields.log", "a")  # File for logging everything.
 if not log.writable():
-	print("Unable to write to the log file. Exiting.")
-	sys.exit()
+	sys.exit("Can't write to log file. Exiting the script.")
 
 
 def get_users():  # Getting the user list.
@@ -26,10 +35,9 @@ def get_users():  # Getting the user list.
 	if users.ok:
 		return users.json()["content"]
 	else:
-		print(f"Unable to get the user list. Response code {users.status_code}.")
 		log.write(f"[{datetime.datetime.now()}]\tUnable to get the user list. "
 				  f"Response code {users.status_code}.\t{users.request.url}\n")
-		sys.exit()
+		sys.exit(f"Unable to get the user list. Response code {users.status_code}.")
 
 
 def get_scim_user_data():  # Getting the SCIM data for each user.

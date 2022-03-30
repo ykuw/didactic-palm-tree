@@ -4,6 +4,13 @@ import time
 from config import credentials, url
 
 
+if not credentials:  # Check if credentials are defined.
+	sys.exit("No credentials provided. Exiting the script.")
+
+if not url:  # Check if url is defined.
+	sys.exit("No URL provided. Exiting the script.")
+
+
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
 	payload = {'grant_type': 'client_credentials', 'scope': 'vo'}
@@ -49,7 +56,6 @@ for a_license in licenses:
 			file.write(f'{a_license}, No data\n')
 		time.sleep(0.3)
 	else:
-		print(f"Unable to execute the API request. Response code is {get_user.status_code}.")
-		sys.exit()
+		sys.exit(f"Unable to execute the API request. Response code is {get_user.status_code}.")
 print(f"{count} users found.")
 file.close()
