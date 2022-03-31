@@ -44,7 +44,7 @@ if confirmation in ["Y", "y"]:
 			f"https://uk.rec.{url}/api/calls/purge_by_query", headers=headers, data=data)
 		if remove_recording.ok:
 			print(f"{a_recording} removed for {credentials}.")
-			count += 1
+			count += 1  # Counting the number of recordings removed.
 			log.write(
 				f"[{datetime.datetime.now()}]\tDELETE {remove_recording.request.url}\t{a_recording} removed "
 				f"for {credentials}\t{remove_recording.request.body}\n")
@@ -58,6 +58,7 @@ if confirmation in ["Y", "y"]:
 	print(f"{count} licenses removed in {time_elapsed}.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} licenses removed in {time_elapsed}.\n")
 else:
+	log.write(f"[{datetime.datetime.now()}]\tExiting the script.\n")
 	sys.exit("Exiting the script.")
 
 file.close()

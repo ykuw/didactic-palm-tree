@@ -58,15 +58,17 @@ if confirmation in ["Y", "y"]:
 			json=payload)
 		if change_status.ok:
 			print(f"Status changed for extension {a_extension}, customer {customer_id}.")
-			count += 1
+			count += 1  # Counting the number of user extensions updated.
 			log.write(
 				f"[{datetime.datetime.now()}]\tPOST {change_status.request.url}\tStatus changed for extension"
 				f" {a_extension}, customer {customer_id}.\n")
 		else:
 			print(f"{a_extension} not found for {customer_id}.")
 			log.write(f"{a_extension} not found for {customer_id}.\n")
+
 	end_time = datetime.datetime.now()  # Time it ended.
 	time_elapsed = end_time - start_time  # Time it took to run the script successfully for all licenses.
+
 	print(f"{count} extensions updated in {time_elapsed}.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} extensions updated in {time_elapsed}.\n")
 else:

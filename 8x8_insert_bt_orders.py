@@ -30,13 +30,13 @@ remainder_list = []
 
 
 def split_numbers(start, end):
-    last_digit = 0
-    for number in range(start, end):
-        if number % 10 == last_digit:
-            last_digit += 1
-        if last_digit == 9:
-            sequences.append(number // 10)
-            last_digit = 0
+    last_digit = 0  # Last digit of the sequence.
+    for number in range(start, end):  # Iterate through the numbers.
+        if number % 10 == last_digit:  # If the last digit is the same as the current number's last digit.
+            last_digit += 1  # Increment last digit.
+        if last_digit == 9:  # If last digit is 9, reset to 0.
+            sequences.append(number // 10)  # Append the first digit of the number.
+            last_digit = 0  # Reset last digit to 0.
 
     for number in range(start, end + 1):
         if number not in range(sequences[0] * 10, sequences[-1] * 10 + 10):
@@ -51,7 +51,7 @@ file = open(f"log/{case_number}_bt.log", "a")
 
 if file.writable():
     if question in ["Y", "y"]:
-        if start_range % 100 == 0:
+        if start_range % 100 == 0:  # If the start range is a multiple of 100, insert the numbers in the db.
             for number in range(start_range, end_range + 1):
                 cursor1.execute("INSERT INTO `numbers` (`ddi`, `silo`, `ccid`, `campaign`, `qid`, `agentid`, "
                                 "`assigned`, "
@@ -62,11 +62,11 @@ if file.writable():
                                 "`999_note`, `999_confirm`) "
                                 f"VALUES ('0{number}', {silo}, '0', '0', '0', '0', NOW(), NOW(), 'queue', 'Available', "
                                 f"'{case_number}', '', '', '', '0', '0', '0', '0', '0', '0', NULL, NULL, NULL, NULL)")
-                db1.commit()
+                db1.commit()  # Commit the changes.
                 file.write(f"{datetime.datetime.now()} \t {cursor1.statement}")
                 file.write("\n")
 
-            double_zero_start_range = start_range // 100
+            double_zero_start_range = start_range // 100  # Get the first digit of the start range.
 
             cursor2.execute("INSERT INTO `numbers_blocks` (`silo`, `intprefix`, `natprefix`, `block`, `suffixlen`, "
                                 "`prefix`, `e164prefix`, `tariff_type`, `description`, `added`, `source`, "
@@ -77,7 +77,7 @@ if file.writable():
                                 f"VALUES ({silo}, '44', '0', {double_zero_start_range}, '2', '0{double_zero_start_range}', '44{double_zero_start_range}', "
                                 f"'Landline Standard', '{geographic_location}', NOW(), 'ofcom', '200', '100', 'yes', "
                                 "'100', '0', '0', '0', '0.0048', '0.0048', '0.0048', 'yes', '0')")
-            db2.commit()
+            db2.commit()  # Commit the changes.
             file.write(f"{datetime.datetime.now()} \t {cursor2.statement}")
             file.write("\n")
         else:
@@ -91,7 +91,7 @@ if file.writable():
                                 "`999_note`, `999_confirm`) "
                                 f"VALUES ('0{number}', {silo}, '0', '0', '0', '0', NOW(), NOW(), 'queue', 'Available', "
                                 f"'{case_number}', '', '', '', '0', '0', '0', '0', '0', '0', NULL, NULL, NULL, NULL)")
-                db1.commit()
+                db1.commit()  # Commit the changes.
                 file.write(f"{datetime.datetime.now()} \t {cursor1.statement}")
                 file.write("\n")
 
@@ -103,7 +103,7 @@ if file.writable():
                                 f"VALUES ({silo}, '44', '0', {sequence}, '1', '0{sequence}', '44{sequence}', "
                                 f"'Landline Standard', '{geographic_location}', NOW(), 'ofcom', '200', '100', 'yes', "
                                 "'10', '0', '0', '0', '0.0048', '0.0048', '0.0048', 'yes', '0')")
-                db2.commit()
+                db2.commit()  # Commit the changes.
                 file.write(f"{datetime.datetime.now()} \t {cursor2.statement}")
                 file.write("\n")
 
@@ -115,15 +115,13 @@ if file.writable():
                                 f"VALUES ({silo}, '44', '0', {remainder}, '1', '0{remainder}', '44{remainder}', "
                                 f"'Landline Standard', '{geographic_location}', NOW(), 'ofcom', '200', '100', 'yes', "
                                 "'1', '0', '0', '0', '0.0048', '0.0048', '0.0048', 'yes', '0')")
-                db2.commit()
+                db2.commit()  # Commit the changes.
                 file.write(f"{datetime.datetime.now()} \t {cursor2.statement}")
                 file.write("\n")
     else:
-        print("The operation has been canceled.")
-        sys.exit()
+        sys.exit("Exiting the script.")
 else:
-    print("Unable to write to file.")
-    sys.exit()
+    sys.exit("Unable to write to the file. Exiting the script.")
 
 cursor1.close()
 cursor2.close()

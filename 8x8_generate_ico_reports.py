@@ -1,5 +1,6 @@
 import sys
 import os
+import datetime
 
 try:
 
@@ -10,8 +11,13 @@ try:
 
     file = open("ico.txt", "r")
 
-    if not file.readable():
-        sys.exit("File not readable.")
+    log = open("ico.log", "w")
+
+    if not log.writable():  # Checking if we can write the log file.
+        sys.exit("The log file is not writable. Exiting the script.")
+
+    if not file.readable():  # Checking if we can read the text file.
+        sys.exit("The text file is not readable. Exiting the script.")
 
     for row in file.readlines():
         ddi = row.strip("\n")
@@ -29,6 +35,8 @@ try:
                       f"-p db | sed 's/\t/,/g' > ico/{ddi}.csv")
 
             print(f"Operation completed for {ddi}.\n")
+
+            log.write(f"[{datetime.datetime.now()}]\t{query}")
         else:
             print(f"Obtaining data for {ddi}.")
 
@@ -43,7 +51,10 @@ try:
 
             print(f"Operation completed for {ddi}.\n")
 
+            log.write(f"[{datetime.datetime.now()}]\t{query}")
+
     file.close()
+    log.close()
 
 except AttributeError:
     print("\nUnable to read file.\n")

@@ -48,19 +48,19 @@ if confirmation in ["Y", "y"]:
 				for content in check_number.json()["content"]:
 					if content["serviceOwner"] == "VCC":  # Checking if the number has the VCC serviceOwner.
 						print(f"{a_number} has {content['serviceOwner']} service.")
-						count += 1
+						count += 1  # Counting all numbers with VCC serviceOwner.
 						log.write(
 							f"[{datetime.datetime.now()}]\tGET {check_number.request.url}\t{a_number} "
 							f"has {content['status']} status.\n")
 					else:
 						print(f"{a_number} has {content['serviceOwner']} service.")  # Checking for different serviceOwner.
-						count_different_status += 1
+						count_different_status += 1  # Counting all numbers with different serviceOwner.
 						log.write(
 							f"[{datetime.datetime.now()}]\tGET {check_number.request.url}\t{a_number} "
 							f"has {content['status']} status.\n")
 			else:
 				print(f"{a_number} not found in DMS.")  # Checking if the number is not found in DMS.
-				count_not_found += 1
+				count_not_found += 1  # Counting all not found numbers.
 				log.write(f"[{datetime.datetime.now()}]\t{a_number} not found in DMS.")
 		else:
 			print(f"Unable to run the request. Response code: {check_number.status_code}.")
@@ -74,6 +74,7 @@ if confirmation in ["Y", "y"]:
 	log.write(f"[{datetime.datetime.now()}]\t{count} numbers found in {time_elapsed}. {count_not_found} resulted in "
 			  f"not found in DMS.\n")
 else:
+	log.write(f"[{datetime.datetime.now()}]\tExiting the script.\n")
 	sys.exit("Exiting the script.")
 
 file.close()
