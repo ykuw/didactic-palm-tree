@@ -53,9 +53,9 @@ if not log.writable():  # Checking if we can write the log file.
 if not file.readable():  # Checking if we can read the text file.
 	sys.exit("The text file is not readable. Exiting the script.")
 
-confirmation = input(f"Do you want to remove all numbers the text file for {customer_id}? Enter Y or N: ")
+confirmation = input(f"Do you want to delete all numbers the text file for {customer_id}? Enter Y or N: ")
 
-count = 0  # Used for counting the tel. num. removed.
+count = 0  # Used for counting the tel. num. deleted.
 
 if confirmation in ["Y", "y"]:
 	for row in file.readlines():
@@ -65,16 +65,16 @@ if confirmation in ["Y", "y"]:
 		delete_number = session.post(f"https://vcc-provapi-prod.{url}/tenant/{customer_id}/phone/delete/{a_number}",
 									 headers=bearer, data=xml)
 		if delete_number.ok:
-			print(f"Successfully removed {a_number} from {customer_id}!")
-			log.write(f"[{datetime.datetime.now()}]\tSuccessfully removed {a_number} from "
+			print(f"Successfully deleted {a_number} from {customer_id}!")
+			log.write(f"[{datetime.datetime.now()}]\tSuccessfully deleted {a_number} from "
 					  f"{customer_id}!\t{delete_number.request.url}\t{delete_number.status_code}\t{delete_number.request.body}\n")
-			count += 1  # Counting the tel. num. removed.
+			count += 1  # Counting the tel. num. deleted.
 		else:
 			log.write(f"[{datetime.datetime.now()}]\tUnable to execute the API request. Response code "
 					  f"is {delete_number.status_code}\t{delete_number.request.url}\t{delete_number.request.body}\n")
 			sys.exit(f"Unable to execute the API request. Response code is {delete_number.status_code}.")
 
-	print(f"{count} telephone numbers removed for {customer_id} from VCC CM.")
+	print(f"{count} telephone numbers deleted for {customer_id} from VCC CM.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} telephone numbers deleted for {customer_id} from VCC CM.\n")
 else:
 	log.write(f"[{datetime.datetime.now()}]\tOperation aborted.\n")
