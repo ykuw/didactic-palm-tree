@@ -45,7 +45,7 @@ bearer = {'Authorization': 'Bearer ' + authentication(), 'Content-Type': 'applic
 
 log = open("apis.log", "a")  # Logging all API requests.
 
-file = open("numbers.txt", "r")  # Licenses to be removed.
+file = open("numbers.txt", "r")  # Numbers to delete.
 
 if not log.writable():  # Checking if we can write the log file.
 	sys.exit("The log file is not writable. Exiting the script.")

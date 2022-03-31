@@ -1,7 +1,7 @@
 import requests
 import sys
 import time
-from config import credentials, url
+from config import credentials, url, customer_id
 
 
 if not credentials:  # Check if credentials are defined.
@@ -9,6 +9,9 @@ if not credentials:  # Check if credentials are defined.
 
 if not url:  # Check if url is defined.
 	sys.exit("No URL provided. Exiting the script.")
+
+if not customer_id:  # Check if customer_id is defined.
+	sys.exit("No customer_id provided. Exiting the script.")
 
 
 def authentication():  # Getting the token.
@@ -20,36 +23,41 @@ def authentication():  # Getting the token.
 
 bearer = {'Authorization': 'Bearer ' + authentication()}  # Bearer token for the API requests.
 
-# Getting the customer id.
-customerid = input("Enter the customer id: ")
-if len(customerid) < 18:
-	sys.exit("Customer id length is less than 18. Exiting the script.")
+log = open("apis.log", "a")  # Logging all API requests.
+
+if not log.writable():  # Checking if we can write the log file.
+	sys.exit("The log file is not writable. Exiting the script.")
 
 
 def check_available_dids():
 	available = requests.get(
-		f"https://platform.{url}/vo/config/v1/customers/{customerid}/dids?filter=status==AVAILABLE", headers=bearer)
-	if available.status_code == 200:
+		f"https://platform.{url}/vo/config/v1/customers/{customer_id}/dids?filter=status==AVAILABLE", headers=bearer)
+	if available.ok:
 		if available.json()["pageResultSize"] != 0:
 			return available.json()["content"]
 		else:
-			sys.exit(f"No available numbers for {customerid} that can be deleted.")
+			log.write(f"No available numbers found for customer {customer_id}.\n")
+			sys.exit(f"No available numbers for {customer_id} that can be deleted.")
 	else:
-		sys.exit(f"Unable to execute the GET API request. Response code: {available.status_code}.")
+		log.write(f"Unable to execute the request. Response code: {available.status_code}\n")
+		sys.exit(f"Unable to execute the request. Response code: {available.status_code}.")
 
 
 dids = check_available_dids()
 
-confirm = input(f"Do you want to delete all dids for subscription {customerid}? Enter Y or N: ")
+confirm = input(f"Do you want to delete all dids for subscription {customer_id}? Enter Y or N: ")
 
 count = 0
 
 if confirm in ["Y", "y"]:
 	for did in dids:
 		deleting_dids = requests.delete(
-			f"https://platform.{url}/vo/config/v1/customers/{customerid}/dids/{did['didId']}", headers=bearer)
+			f"https://platform.{url}/vo/config/v1/customers/{customer_id}/dids/{did['didId']}", headers=bearer)
 		count += 1
+		log.write(f"{deleting_dids.request.url}")
 		time.sleep(2)
-	print(f"{count} dids deleted for {customerid}.")
+	print(f"{count} dids deleted for {customer_id}.")
+	log.write(f"{count} dids deleted for {customer_id}.\n")
 else:
+	log.write("Exiting the script.\n")
 	sys.exit("Exiting the script.")

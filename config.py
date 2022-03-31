@@ -4,5 +4,6 @@ url = ""  # Website.
 site = ""  # Tenant site.
 cluster = ""  # Tenant cluster.
 start_date = ""  # Start date.
-pbx_id = ""  # PBX Id.
 end_date = ""  # End date.
+pbx_id = ""  # PBX Id.
+subscription_id = ""  # Subscription ID.
