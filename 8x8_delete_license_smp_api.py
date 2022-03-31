@@ -46,17 +46,20 @@ if confirmation in ["Y", "y"]:
 			f"https://platform.{url}/license/v1/customers/{customer_id}/licenses/{a_license}", headers=bearer)
 		if remove_license.ok:
 			print(f"{a_license} removed for {customer_id}.")
-			count += 1
+			count += 1  # Counting the removed licenses.
 			log.write(
 				f"[{datetime.datetime.now()}]\tDELETE {remove_license.request.url}\t{a_license} removed for {customer_id}.\n")
 		else:
 			print(f"{a_license} not found for {customer_id}.")
-			log.write(f"{a_license} not found for {customer_id}.\n")
+			log.write(f"[{datetime.datetime.now()}]\t{a_license} not found for {customer_id}.\n")
+
 	end_time = datetime.datetime.now()  # Time it ended.
 	time_elapsed = end_time - start_time  # Time it took to run the script successfully for all licenses.
+
 	print(f"{count} total licenses removed in {time_elapsed}.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} total licenses removed in {time_elapsed}.\n")
 else:
+	log.write(f"[{datetime.datetime.now()}]\tExiting the script.\n")
 	sys.exit("Exiting the script.")
 
 file.close()

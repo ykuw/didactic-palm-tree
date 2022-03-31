@@ -41,9 +41,9 @@ def get_users():  # Getting the user list.
 
 
 def get_scim_user_data():  # Getting the SCIM data for each user.
-	scim_customfields_url = []
-	count = 0
-	count_no_scim = 0
+	scim_customfields_url = []  # List for the SCIM data.
+	count = 0  # Counting the number of users with SCIM data.
+	count_no_scim = 0  # Counting the number of users without SCIM data.
 	for user in get_users():
 		get_user = requests.get(f"https://platform.{url}/directory/v1/customers/{customer_id}/users/{user['userId']}?"
 								f"scope=expand(clientdata)'", headers=bearer)
@@ -52,12 +52,12 @@ def get_scim_user_data():  # Getting the SCIM data for each user.
 				if "scimPlatform" in content:
 					print(f"SCIM data for {user['userId']}.")
 					scim_customfields_url.append(content["scimPlatform"]["self"])
-					count += 1
+					count += 1  # Counting the number of users with SCIM data.
 					log.write(f"[{datetime.datetime.now()}]\tSCIM data for {user['userId']}.\t{get_user.request.url}\n")
 				else:
 					print(f"No SCIM data for {user['userId']}.")
 					print(get_user.json()["content"])
-					count_no_scim += 1
+					count_no_scim += 1  # Counting the number of users without SCIM data.
 					log.write(
 						f"[{datetime.datetime.now()}]\tNo SCIM data for {user['userId']}.\t{get_user.request.url}\n")
 		else:
@@ -75,7 +75,7 @@ def delete_scim_user_data():  # Deleting the SCIM data for users with SCIM data.
 	for scim_url in get_scim_user_data():
 		delete_scim_data = requests.delete(scim_url, headers=bearer)
 		if delete_scim_data.ok:
-			count += 1
+			count += 1  # Counting the number of users with SCIM data deleted.
 			log.write(f"[{datetime.datetime.now()}]\tDELETE {delete_scim_data.request.url} OK\n")
 		else:
 			print("Unable to run the DELETE request.")

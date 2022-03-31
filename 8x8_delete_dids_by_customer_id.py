@@ -1,6 +1,7 @@
 import requests
 import sys
 import time
+import datetime
 from config import credentials, url, customer_id
 
 
@@ -36,28 +37,32 @@ def check_available_dids():
 		if available.json()["pageResultSize"] != 0:
 			return available.json()["content"]
 		else:
-			log.write(f"No available numbers found for customer {customer_id}.\n")
+			log.write(f"[{datetime.datetime.now()}]\tNo available numbers found for customer {customer_id}.\n")
 			sys.exit(f"No available numbers for {customer_id} that can be deleted.")
 	else:
-		log.write(f"Unable to execute the request. Response code: {available.status_code}\n")
+		log.write(f"[{datetime.datetime.now()}]\tUnable to execute the request. Response code: {available.status_code}\n")
 		sys.exit(f"Unable to execute the request. Response code: {available.status_code}.")
 
 
-dids = check_available_dids()
+dids = check_available_dids()  # Getting the available DIDs.
 
 confirm = input(f"Do you want to delete all dids for subscription {customer_id}? Enter Y or N: ")
 
-count = 0
+count = 0  # Counting the number of DIDs that will be deleted.
 
 if confirm in ["Y", "y"]:
 	for did in dids:
 		deleting_dids = requests.delete(
 			f"https://platform.{url}/vo/config/v1/customers/{customer_id}/dids/{did['didId']}", headers=bearer)
-		count += 1
-		log.write(f"{deleting_dids.request.url}")
-		time.sleep(2)
+
+		count += 1  # Counting the number of DIDs that have been deleted.
+		log.write(f"[{datetime.datetime.now()}]\t{deleting_dids.request.url}")
+		time.sleep(2)  # Sleep for 2 seconds.
+
 	print(f"{count} dids deleted for {customer_id}.")
-	log.write(f"{count} dids deleted for {customer_id}.\n")
+	log.write(f"[{datetime.datetime.now()}]\t{count} dids deleted for {customer_id}.\n")
 else:
-	log.write("Exiting the script.\n")
+	log.write(f"[{datetime.datetime.now()}]\tExiting the script.\n")
 	sys.exit("Exiting the script.")
+
+log.close()  # Closing the log file.

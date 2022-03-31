@@ -1,6 +1,7 @@
 import requests
 import sys
 import time
+import datetime
 from config import credentials, url, customer_id, pbx_id, subscription_id
 
 
@@ -40,35 +41,41 @@ def check_subscription_id():
 		f"https://platform.{url}/vo/config/v1/customers/{customer_id}/pbxes/{pbx_id}/didbindings"
 		f"?filter=subscriptionId=={subscription_id}",
 		headers=bearer)
-	if subscription.status_code == 200:
+	if subscription.ok:
 		if subscription.json()["pageResultSize"] != 0:
 			return subscription.json()["content"]
 		else:
-			print(f"No PBX created for {customer_id}. Creating it now based on the /customers data.")
-			log.write("No PBX created for {customer_id}. Creating it now based on the /customers data.\n")
+			print(f"No DID bindings found for subscription ID {subscription_id}.")
+			log.write(f"[{datetime.datetime.now()}]\tNo PBX created for {customer_id}. Creating it "
+					  f"now based on the /customers data.\n")
 	else:
-		log.write(f"Error: {subscription.status_code} - {subscription.request.url}\n")
+		log.write(f"[{datetime.datetime.now()}]\tError: {subscription.status_code} - {subscription.request.url}\n")
 		sys.exit(f"Unable to execute the GET API request. Response code: {subscription.status_code}.")
 
 
-subscriptions = check_subscription_id()
+subscriptions = check_subscription_id()  # Getting the DID bindings.
 
 confirm = input(
 	f"Do you want to delete all didbindings for subscription {subscription_id}, pbx {pbx_id}, customer {customer_id}? "
 	f"Enter Y or N: ")
 
-count = 0
+count = 0  # Counting the number of DID bindings deleted.
 
 if confirm in ["Y", "y"]:
 	for subscription in subscriptions:
 		didbindings = requests.delete(
 			f"https://platform.{url}/vo/config/v1/customers/{customer_id}/pbxes/{pbx_id}/didbindings/{subscription['didBindingId']}",
 			headers=bearer)
-		log.write(f"{didbindings.status_code} - {didbindings.request.url}\n")
-		count += 1
-		time.sleep(2)
-	print(f"{count} didbindings deleted for subscription {subscription_id}, pbx {pbx_id}, customer {customer_id}.")
-	log.write(f"{count} didbindings deleted for subscription {subscription_id}, pbx {pbx_id}, customer {customer_id}.\n")
+		log.write(f"[{datetime.datetime.now()}]\t{didbindings.status_code}\t{didbindings.request.url}\n")
+
+		count += 1  # Counting the number of DID bindings deleted.
+		time.sleep(2)  # Sleep for 2
+
+	print(f"{count} DID bindings deleted for subscription {subscription_id}, pbx {pbx_id}, customer {customer_id}.")
+	log.write(f"[{datetime.datetime.now()}]\t{count} DID bindings deleted for subscription {subscription_id}, "
+			  f"pbx {pbx_id}, customer {customer_id}.\n")
 else:
-	log.write(f"Exiting the script.\n")
+	log.write(f"[{datetime.datetime.now()}]\tExiting the script.\n")
 	sys.exit("Exiting the script.")
+
+log.close()  # Closing the log file.

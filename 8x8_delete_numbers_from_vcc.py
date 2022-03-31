@@ -68,7 +68,7 @@ if confirmation in ["Y", "y"]:
 			print(f"Successfully removed {a_number} from {customer_id}!")
 			log.write(f"[{datetime.datetime.now()}]\tSuccessfully removed {a_number} from "
 					  f"{customer_id}!\t{delete_number.request.url}\t{delete_number.status_code}\t{delete_number.request.body}\n")
-			count += 1
+			count += 1  # Counting the tel. num. removed.
 		else:
 			log.write(f"[{datetime.datetime.now()}]\tUnable to execute the API request. Response code "
 					  f"is {delete_number.status_code}\t{delete_number.request.url}\t{delete_number.request.body}\n")

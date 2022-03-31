@@ -74,6 +74,7 @@ if confirmation in ["Y", "y"]:
 	log.write(f"[{datetime.datetime.now()}]\t{count} numbers found in {time_elapsed}. {count_not_found} resulted in "
 			  f"not found in DMS.\n")
 else:
+	log.write(f"[{datetime.datetime.now()}]\tExiting the script.\n")
 	sys.exit("Exiting the script.")
 
 file.close()

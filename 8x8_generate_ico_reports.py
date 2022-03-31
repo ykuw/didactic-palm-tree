@@ -11,8 +11,7 @@ try:
     file = open("ico.txt", "r")
 
     if not file.readable():
-        print("Cannot read file.")
-        sys.exit()
+        sys.exit("File not readable.")
 
     for row in file.readlines():
         ddi = row.strip("\n")

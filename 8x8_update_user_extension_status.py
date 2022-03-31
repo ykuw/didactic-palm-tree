@@ -70,6 +70,7 @@ if confirmation in ["Y", "y"]:
 	print(f"{count} extensions updated in {time_elapsed}.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} extensions updated in {time_elapsed}.\n")
 else:
+	log.write(f"[{datetime.datetime.now()}]\tScript aborted.\n")
 	sys.exit("Exiting the script.")
 
 file.close()
