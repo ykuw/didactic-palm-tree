@@ -79,3 +79,6 @@ if confirmation in ["Y", "y"]:
 else:
 	log.write(f"[{datetime.datetime.now()}]\tOperation aborted.\n")
 	sys.exit("Operation aborted.")
+
+log.close()  # Closing the log file.
+file.close()  # Closing the text file.

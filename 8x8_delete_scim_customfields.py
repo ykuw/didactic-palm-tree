@@ -85,6 +85,6 @@ def delete_scim_user_data():  # Deleting the SCIM data for users with SCIM data.
 	log.write(f"[{datetime.datetime.now()}]\tDeleted SCIM data for {count} users.\n")
 
 
-delete_scim_user_data()
+delete_scim_user_data()  # Calling the function to delete the SCIM data.
 
-log.close()
+log.close()  # Closing the log file.

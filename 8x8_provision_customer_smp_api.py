@@ -56,7 +56,7 @@ def check_customers():
 		         f"{customers.request.url}")
 
 
-customer = check_customers()
+customer = check_customers()  # Calling the function to check if the customer exists in '/customers' in SMP.
 
 
 # 2 - PBX Validation

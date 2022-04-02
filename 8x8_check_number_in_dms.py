@@ -63,5 +63,5 @@ if confirmation in ["Y", "y"]:
 else:
 	sys.exit("Exiting the script.")
 
-file.close()
-log.close()
+file.close()  # Closing the text file.
+log.close()  # Closing the log file.

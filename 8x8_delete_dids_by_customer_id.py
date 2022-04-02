@@ -56,7 +56,7 @@ if confirm in ["Y", "y"]:
 			f"https://platform.{url}/vo/config/v1/customers/{customer_id}/dids/{did['didId']}", headers=bearer)
 
 		count += 1  # Counting the number of DIDs that have been deleted.
-		log.write(f"[{datetime.datetime.now()}]\t{deleting_dids.request.url}")
+		log.write(f"[{datetime.datetime.now()}]\t{deleting_dids.request.url}")  # Logging the request.
 		time.sleep(2)  # Sleep for 2 seconds.
 
 	print(f"{count} dids deleted for {customer_id}.")

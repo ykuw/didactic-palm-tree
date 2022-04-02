@@ -77,5 +77,5 @@ else:
 	log.write(f"[{datetime.datetime.now()}]\tExiting the script.\n")
 	sys.exit("Exiting the script.")
 
-file.close()
-log.close()
+file.close()  # Closing the text file.
+log.close()  # Closing the log file.
