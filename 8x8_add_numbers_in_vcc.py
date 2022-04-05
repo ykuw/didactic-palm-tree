@@ -68,7 +68,7 @@ if confirmation in ["Y", "y"]:
 			print(f"Successfully added {a_number} to {customer_id}!")
 			log.write(f"[{datetime.datetime.now()}]\tSuccessfully added {a_number} to "
 					  f"{customer_id}!\t{add_number.request.url}\t{add_number.status_code}\t{add_number.request.body}\n")
-			count += 1
+			count += 1  # Counting the number of numbers added.
 		else:
 			log.write(f"[{datetime.datetime.now()}]\tUnable to execute the API request. Response code "
 					  f"is {add_number.status_code}\t{add_number.request.url}\t{add_number.request.body}\n")
@@ -77,8 +77,8 @@ if confirmation in ["Y", "y"]:
 	print(f"{count} telephone numbers added to {customer_id}.")
 	log.write(f"[{datetime.datetime.now()}]\t{count} telephone numbers added to {customer_id}.\n")
 else:
-	log.write(f"[{datetime.datetime.now()}]\tOperation aborted.\n")
-	sys.exit("Operation aborted.")
+	log.write(f"[{datetime.datetime.now()}]\tExiting the script.\n")
+	sys.exit("Exiting the script.")
 
 log.close()  # Closing the log file.
 file.close()  # Closing the text file.

@@ -19,7 +19,7 @@ if not cluster:  # Check if cluster is defined.
 	sys.exit("No cluster provided. Exiting the script.")
 
 if not customer_id:  # Check if customer_id is defined.
-	sys.exit("No customer id provided. Exiting the script.")
+	sys.exit("No customer_id provided. Exiting the script.")
 
 
 def authentication():  # Getting the token.
@@ -38,10 +38,10 @@ class TLSAdapter(adapters.HTTPAdapter):  # This solves a SSL issue
 		return super(TLSAdapter, self).init_poolmanager(*args, **kwargs)
 
 
-session = requests.session()
-session.mount('https://', TLSAdapter())
+session = requests.session()  # Session is used to keep the token.
+session.mount('https://', TLSAdapter())  # Mount the adapter.
 
-bearer = {'Authorization': 'Bearer ' + authentication(), 'Content-Type': 'application/xml'}
+bearer = {'Authorization': 'Bearer ' + authentication(), 'Content-Type': 'application/xml'}  # Bearer is used to keep the token.
 
 log = open("apis.log", "a")  # Logging all API requests.
 
@@ -59,7 +59,7 @@ count = 0  # Used for counting the tel. num. deleted.
 
 if confirmation in ["Y", "y"]:
 	for row in file.readlines():
-		a_number = row.strip("\n")
+		a_number = row.strip("\n")  # Strip the new line character.
 		xml = f'<request><user id="pma" agent="Account Manager"></user><phone clidblk="enabled" ' \
 			  f'calling-name="8x8, Inc." site="{site.upper()}" cluster="{cluster.upper()}"></phone></request>'
 		delete_number = session.post(f"https://vcc-provapi-prod.{url}/tenant/{customer_id}/phone/delete/{a_number}",
