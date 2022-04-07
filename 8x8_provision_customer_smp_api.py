@@ -403,7 +403,7 @@ def rbac_payload():
 	payload = {
 		"matchingRule": {
 			"name": f"{user_first_name} {user_last_name}",
-			"rule": f'userId == \"{get_user()}\"'
+			"rule": f"userId == \"{get_user()}\""
 		},
 		"assignments": [
 			{
