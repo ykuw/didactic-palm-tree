@@ -19,6 +19,9 @@ if not user_first_name:  # Check if user_first_name is defined.
 if not user_last_name:  # Check if user_last_name is defined.
 	sys.exit("No user_last_name provided. Exiting the script.")
 
+if not user_email:  # Check if user_email is defined.
+	sys.exit("No user_email provided. Exiting the script.")
+
 
 def authentication():  # Getting the token.
 	headers = {'Authorization': f'Basic {credentials}', 'Content-Type': 'application/x-www-form-urlencoded'}
