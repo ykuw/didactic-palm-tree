@@ -415,7 +415,8 @@ def create_admin_protected_tag():
 		f"https://platform.{url}/rolemgmt/v1/customers/{customer_id}/accessors/{get_user()}/roles", headers = bearer,
 		json = admin_protected_tag_payload())
 	if admin_protected_tag.ok:
-		print(f"Created the protected tag for user {get_user()}. Step five, part three, completed! Taking a 2 sec break.")
+		print(
+			f"Created the protected tag for user {get_user()}. Step five, part three, completed! Taking a 2 sec break.")
 		log.write(f"[{datetime.datetime.now()}]\tCreated the admin role for user {get_user()}. Step five, "
 		          f"part three, completed! Taking a 2 sec break.\n")
 		time.sleep(2)  # Sleep for 2 sec.
@@ -430,7 +431,8 @@ def create_admin_protected_tag():
 
 def check_admin_protected_tag():
 	admin_protected_tag = requests.get(
-		f"https://platform.{url}/directory/v1/customers/{customer_id}/resourceclasses/users/resources/{get_user()}/tags", headers = bearer)
+		f"https://platform.{url}/directory/v1/customers/{customer_id}/resourceclasses/users/resources/{get_user()}/tags",
+		headers = bearer)
 	time.sleep(1)  # Sleep for 1 sec.
 	if admin_protected_tag.ok:
 		if admin_protected_tag.json()["pageResultSize"] != 0:
