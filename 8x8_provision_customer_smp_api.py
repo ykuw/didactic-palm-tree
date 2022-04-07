@@ -2,7 +2,7 @@ import requests
 import sys
 import time
 import datetime
-from config import credentials, url, customer_id, user_first_name, user_last_name
+from config import credentials, url, customer_id, user_first_name, user_last_name, user_email
 
 if not credentials:  # Check if credentials are defined.
 	sys.exit("No credentials provided. Exiting the script.")
@@ -27,7 +27,10 @@ def authentication():  # Getting the token.
 	return sso.json()["access_token"]
 
 
-bearer = {'Authorization': 'Bearer ' + authentication()}  # Bearer token for the API requests.
+bearer = {
+	'Authorization': 'Bearer ' + authentication(),
+	'Content-Type': 'application/json'
+}  # Bearer token for the API requests.
 
 log = open("apis.log", "a")  # Logging all API requests.
 
@@ -275,7 +278,6 @@ check_call_park()  # Calling the function to check the call park data.
 
 # 5 - User DB Validation. Part one.
 def user_payload():
-	user_email = input("Enter the email address for the main admin: ")
 	for info in customer:
 		timezone_id = info["timeZoneId"]
 		payload = {
@@ -304,7 +306,8 @@ def create_user_db():
 		log.write(f"[{datetime.datetime.now()}]\tUnable to create the main admin. Response code {user_db.status_code}. "
 		          f"Step five, part one. - "
 		          f"{user_db.request.url}\t{user_db.request.body}\t{user_db.request.headers}\n")
-		sys.exit(f"Unable to execute the POST API request. Response code {user_db.status_code}. Step five, part one. - "
+		sys.exit(f"Unable to execute the POST API request. Make sure the user is not in '/directory'. "
+		         f"Response code {user_db.status_code}. Step five, part one. - "
 		         f"{user_db.request.url}, {user_db.request.body}, {user_db.request.headers}")
 
 
@@ -396,6 +399,288 @@ def check_user_role():
 
 
 check_user_role()  # Calling the function to check if the user has a role.
+
+
+# 5 - User DB Validation. Part three.
+def admin_protected_tag_payload():
+	payload = {
+		"name": "protected"
+	}
+	return payload
+
+
+def create_admin_protected_tag():
+	# Creating the main admin.
+	admin_protected_tag = requests.post(
+		f"https://platform.{url}/rolemgmt/v1/customers/{customer_id}/accessors/{get_user()}/roles", headers = bearer,
+		json = admin_protected_tag_payload())
+	if admin_protected_tag.ok:
+		print(f"Created the protected tag for user {get_user()}. Step five, part three, completed! Taking a 2 sec break.")
+		log.write(f"[{datetime.datetime.now()}]\tCreated the admin role for user {get_user()}. Step five, "
+		          f"part three, completed! Taking a 2 sec break.\n")
+		time.sleep(2)  # Sleep for 2 sec.
+	else:
+		log.write(f"[{datetime.datetime.now()}]\tUnable to create the protected tag. Response "
+		          f"code {admin_protected_tag.status_code}. Step five, part three. - "
+		          f"{admin_protected_tag.request.url}\t{admin_protected_tag.request.body}\t{admin_protected_tag.request.headers}\n")
+		sys.exit(
+			f"Unable to create the protected tag. Response code {admin_protected_tag.status_code}. Step five, part three. -"
+			f"{admin_protected_tag.request.url}, {admin_protected_tag.request.body}, {admin_protected_tag.request.headers}")
+
+
+def check_admin_protected_tag():
+	admin_protected_tag = requests.get(
+		f"https://platform.{url}/directory/v1/customers/{customer_id}/resourceclasses/users/resources/{get_user()}/tags", headers = bearer)
+	time.sleep(1)  # Sleep for 1 sec.
+	if admin_protected_tag.ok:
+		if admin_protected_tag.json()["pageResultSize"] != 0:
+			print(f"There is a protected tag for user {get_user()}.")
+			log.write(f"[{datetime.datetime.now()}]\tThere is a protected tag for user {get_user()}.\n")
+		else:
+			print(f"There is no protected tag for the user. Creating one now.")
+			log.write(f"[{datetime.datetime.now()}]\tThere is no protected tag for the user. Creating one now.\n")
+			create_admin_protected_tag()  # Calling the function to create the admin role.
+	else:
+		log.write(f"[{datetime.datetime.now()}]\tUnable to execute the GET API request. Response "
+		          f"code: {admin_protected_tag.status_code}. Step five, part three. -"
+		          f"{admin_protected_tag.request.url}\t{admin_protected_tag.request.body}\t{admin_protected_tag.request.headers}\n")
+		sys.exit(f"Unable to execute the GET API request. Step five, part three.")
+
+
+check_admin_protected_tag()  # Calling the function to check if the user has a protected tag.
+
+
+# 5 - User DB Validation. Part four.
+def master_user_template_payload():
+	payload = {
+		"templateName": "8x8 Master User Template",
+		"customerId": f"{customer_id}",
+		"templateType": "USER",
+		"template": {
+			"fields": [
+				{
+					"name": "disable_vod_login",
+					"value": False,
+					"category": "general",
+					"description": "The user is not allowed to use VOD",
+					"defaultLabel": "Virtual Office Desktop login disabled"
+				},
+				{
+					"name": "disable_vom_login",
+					"value": False,
+					"category": "general",
+					"description": "The user is not allowed to use VOM",
+					"defaultLabel": "Virtual Office Mobile login disabled"
+				},
+				{
+					"name": "disable_voo_login",
+					"value": False,
+					"category": "general",
+					"description": "The user is not allowed to use VOO",
+					"defaultLabel": "Virtual Office Online login disabled"
+				},
+				{
+					"name": "disable_create_meetings",
+					"value": False,
+					"category": "general",
+					"description": "The user is only allowed to join Virtual Meetings and not allowed to create them.  "
+					               "Has no effect if Virtual Meetings is disabled",
+					"defaultLabel": "Disable create Virtual Meetings"
+				},
+				{
+					"name": "disable_virtual_meetings",
+					"value": False,
+					"category": "general",
+					"description": "Virtual Meetings is not shown in the clients",
+					"defaultLabel": "Disable Virtual Meetings"
+				},
+				{
+					"name": "desktopapp-disable_vod_upgrade_prompt",
+					"value": False,
+					"category": "general",
+					"description": "Do not prompt users with Admin rights to upgrade to the latest version of VOD when available.",
+					"defaultLabel": "Disable Virtual Office Desktop upgrade prompt"
+				},
+				{
+					"name": "disable_messaging",
+					"value": False,
+					"category": "general",
+					"description": "Messaging is not shown in the clients",
+					"defaultLabel": "Disable Messaging"
+				},
+				{
+					"name": "disable_sms_messaging",
+					"value": False,
+					"category": "general",
+					"description": "SMS messages can not be sent or received.  Has no effect if Messaging is disabled.",
+					"defaultLabel": "Restrict sending SMS messages"
+				},
+				{
+					"name": "disable_browse_contacts",
+					"value": False,
+					"category": "general",
+					"description": "Contacts tab is not shown in the clients, so Contact interaction is via search.",
+					"defaultLabel": "Disable Browse Contacts"
+				},
+				{
+					"name": "disable_voicemail_download",
+					"value": False,
+					"category": "general",
+					"description": "Voicemails may be played but not downloaded by the clients.",
+					"defaultLabel": "Disable Voicemail Download"
+				},
+				{
+					"name": "disable_voicemail_forward",
+					"value": False,
+					"category": "general",
+					"description": "Voicemails may not be forwarded to other internal extensions",
+					"defaultLabel": "Disable Voicemail Forwarding"
+				},
+				{
+					"name": "disable_call_recording_delete",
+					"value": False,
+					"groupName": "general",
+					"description": "The user is not allowed to use delete call recordings",
+					"defaultLabel": "Do not allow users to delete their call recordings"
+				},
+				{
+					"name": "disable_call_recording_play",
+					"value": False,
+					"groupName": "general",
+					"description": "The user is not allowed to access call recordings",
+					"defaultLabel": "Do not allow users to access their call recordings"
+				},
+				{
+					"name": "disable_voicemail_transcription",
+					"value": False,
+					"groupName": "general",
+					"description": "Voicemail transcription is not included with voicemail notification",
+					"defaultLabel": "Disable Voicemail Transcription"
+				},
+				{
+					"name": "disable_user_basic_info_edit_ui",
+					"value": False,
+					"category": "User profile: basic information",
+					"description": "The user is not allowed to edit their basic info section in configuration manager",
+					"defaultLabel": "Do not allow users to modify their basic information in configuration manager"
+				},
+				{
+					"name": "disable_user_basic_voice_settings_edit_ui",
+					"value": False,
+					"category": "User profile: voice basic settings",
+					"description": "The user is not allowed to edit their voice basic settings section in configuration manager",
+					"defaultLabel": "Do not allow users to modify their voice basic settings in configuration manager"
+				},
+				{
+					"name": "disable_user_voicemail_edit_ui",
+					"value": False,
+					"category": "User profile: voicemail settings",
+					"description": "The user is not allowed to edit their voicemail section in configuration manager",
+					"defaultLabel": "Do not allow users to modify their voicemail settings in configuration manager"
+				},
+				{
+					"name": "disable_user_external_callerid_edit_ui",
+					"value": False,
+					"category": "User profile: external caller ID",
+					"description": "The user is not allowed to edit their external caller ID section in configuration manager",
+					"defaultLabel": " Do not allow users to modify their external caller ID in configuration manager"
+				},
+				{
+					"name": "disable_user_internal_callerid_edit_ui",
+					"value": False,
+					"category": "User profile: internal caller ID",
+					"description": "The user is not allowed to edit their internal caller ID section in configuration manager",
+					"defaultLabel": "Do not allow users to modify their internal caller ID in configuration manager"
+				},
+				{
+					"name": "disable_user_call_forwarding_rules_edit_ui",
+					"value": False,
+					"category": "User profile: call forwarding rules",
+					"description": "The user is not allowed to edit their call forwarding section in configuration manager",
+					"defaultLabel": "Do not allow users to modify their call forwarding rules in configuration manager"
+				},
+				{
+					"name": "disable_user_moh_edit_ui",
+					"value": False,
+					"category": " User profile: music on hold",
+					"description": "The user is not allowed to edit their music on hold section in configuration manager",
+					"defaultLabel": "Do not allow users to modify their music on hold in configuration manager"
+				},
+				{
+					"name": "disable_user_call_recording_settings_edit_ui",
+					"value": False,
+					"category": "User profile: call recording settings",
+					"description": "The user is not allowed to edit their call recording settings section in configuration manager",
+					"defaultLabel": "Do not allow users to modify their call recording settings in configuration manager"
+				},
+				{
+					"name": "disable_user_emergency_address_edit_ui",
+					"value": False,
+					"category": "User profile: emergency address",
+					"description": "The user is not allowed to edit their emergency address section in configuration manager",
+					"defaultLabel": "Do not allow users to modify their emergency address in configuration manager"
+				},
+				{
+					"name": "disable_user_fax_settings_edit_ui",
+					"value": False,
+					"category": "User profile: fax settings",
+					"description": "The user is not allowed to edit their fax settings section in configuration manager",
+					"defaultLabel": "Do not allow users to modify their fax settings in configuration manager"
+				},
+				{
+					"name": "vod_version_to_use",
+					"value": "latest",
+					"category": "general",
+					"description": "The users will not be able to update to a newer VOD version than the specified one",
+					"defaultLabel": "Do not allow user to use a Virtual Office desktop version higher than "
+				}
+			]
+		},
+		"isDefault": True
+	}
+	return payload
+
+
+def create_master_user_template():
+	# Creating the main admin.
+	master_user_template = requests.post(
+		f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}/templates", headers = bearer,
+		json = master_user_template_payload())
+	if master_user_template.ok:
+		print(f"Created the '8x8 Master User Template'. Step five, part four, completed! Taking a 2 sec break.")
+		log.write(f"[{datetime.datetime.now()}]\tCreated the '8x8 Master User Template'. Step five, "
+		          f"part four, completed! Taking a 2 sec break.\n")
+		time.sleep(2)  # Sleep for 2 sec.
+	else:
+		log.write(f"[{datetime.datetime.now()}]\tUnable to create the '8x8 Master User Template'. Response "
+		          f"code {master_user_template.status_code}. Step five, part four. - "
+		          f"{master_user_template.request.url}\t{master_user_template.request.body}\t{master_user_template.request.headers}\n")
+		sys.exit(
+			f"Unable to create the '8x8 Master User Template'. Response code {master_user_template.status_code}. Step "
+			f"five, part four. - "
+			f"{master_user_template.request.url}, {master_user_template.request.body}, {master_user_template.request.headers}")
+
+
+def check_master_user_template():
+	master_user_template = requests.get(
+		f"https://platform.8x8.com/vo/config/v1/customers/{customer_id}/templates", headers = bearer)
+	time.sleep(1)  # Sleep for 1 sec.
+	if master_user_template.ok:
+		if master_user_template.json()["pageResultSize"] != 0:
+			print("The '8x8 Master User Template' is already created.")
+			log.write(f"[{datetime.datetime.now()}]\tThe '8x8 Master User Template' is already created.\n")
+		else:
+			print(f"There is no '8x8 Master User Template'. Creating one now.")
+			log.write(f"[{datetime.datetime.now()}]\tThere is no '8x8 Master User Template'. Creating one now.\n")
+			create_master_user_template()  # Calling the function to create the admin role.
+	else:
+		log.write(f"[{datetime.datetime.now()}]\tUnable to execute the GET API request. Response "
+		          f"code: {master_user_template.status_code}. Step five, part four. -"
+		          f"{master_user_template.request.url}\t{master_user_template.request.body}\t{master_user_template.request.headers}\n")
+		sys.exit(f"Unable to execute the GET API request. Step five, part four.")
+
+
+check_master_user_template()  # Calling the function to check if the '8x8 Master User Template' already exists.
 
 
 # 6 - Admin Validation

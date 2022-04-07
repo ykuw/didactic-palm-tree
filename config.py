@@ -9,3 +9,4 @@ pbx_id = ""  # PBX Id.
 subscription_id = ""  # Subscription ID.
 user_first_name = ""  # User first name.
 user_last_name = ""  # User last name.
+user_email = ""  # User email.
