@@ -35,6 +35,29 @@ count = 0  # Counter for all licenses removed.
 
 start_time = datetime.datetime.now()  # Time it started to remove licenses.
 
+
+# Function to get batches of 1000 rows from the text file.
+# Work in progress.
+def get_batch(file):
+	batch = []
+	for i in range(1000):
+		line = file.readline()
+		if line:
+			batch.append(line)
+		else:
+			break
+	return batch
+
+
+# Function to get 1000 rows at a time from the text file.
+# Work in progress.
+def get_recordings(file):
+	batch = get_batch(file)
+	while batch:
+		yield batch
+		batch = get_batch(file)
+
+
 if confirmation in ["Y", "y"]:
 	for row in file.readlines():
 		a_recording = row.strip("\n")  # Recordings from the text file, one at a time.

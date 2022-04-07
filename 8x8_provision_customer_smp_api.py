@@ -127,7 +127,7 @@ def check_pbxes():
 	time.sleep(1)  # Sleeping for 1 sec.
 	if pbxes.ok:
 		if pbxes.json()["pageResultSize"] != 0:
-			log.write(pbxes.json()["content"])
+			log.write(f"{pbxes.json()['content']}\n")
 			return pbxes.json()["content"]
 		else:
 			print(f"No PBX created for {customer_id}. Creating it now based on the '/customers' data.")
@@ -403,7 +403,7 @@ def rbac_payload():
 	payload = {
 		"matchingRule": {
 			"name": f"{user_first_name} {user_last_name}",
-			"rule": f"userId == \"{get_user()}\""
+			"rule": f'userId == \"{get_user()}\"'
 		},
 		"assignments": [
 			{
@@ -430,11 +430,11 @@ def create_rbac_permissions():
 	# Creating the RBAC permissions.
 	headers = {
 		'Authorization': 'Bearer ' + authentication(),
-		'Content-Type': 'application/x-www-form-urlencoded',
+		'Content-Type': 'application/json',
 		'Rbac-Override-Tenant-Id': f'{customer_id}'
 	}
 	rbac_permissions = requests.post(
-		f"https://platform.{url}/rolemgmt/v1/customers/{customer_id}/accessors/{get_user()}/roles", headers = headers,
+		f"https://cloud8.{url}/rbac/api/v1/admin/composite/multiple/assignments", headers = headers,
 		json = rbac_payload())
 	if rbac_permissions.ok:
 		print(f"Created the admin role for {get_user()}.")
@@ -444,7 +444,7 @@ def create_rbac_permissions():
 		log.write(f"[{datetime.datetime.now()}]\tUnable to create the admin role. Response "
 		          f"code {rbac_permissions.status_code}. Step six. - "
 		          f"{rbac_permissions.request.url}\t{rbac_permissions.request.body}\t{rbac_permissions.request.headers}\n")
-		sys.exit(f"Unable to execute the POST API request. Response code {rbac_permissions.status_code}. Step six. -"
+		sys.exit(f"Unable to execute the POST API request. Response code {rbac_permissions.status_code}. Step six. - "
 		         f"{rbac_permissions.request.url}, {rbac_permissions.request.body}, {rbac_permissions.request.headers}")
 
 
