@@ -2,6 +2,14 @@ from bson.json_util import dumps
 from pymongo import MongoClient
 import certifi
 
+# Author: "ykuw"
+# Email: "hurrays_coder_0r@icloud.com"
+# Description:
+# "This script is used to export data from MongoDB to JSON file."
+# "Create in the main directory where this script is located a directory named 'collections'."
+# "You have to provide the URL of MongoDB server, the name of the database, the name of the collection."
+# "The script will create a JSON file in the 'collections' directory with the name of the collection."
+
 ca = certifi.where()
 
 url = input("Enter the URL of the MongoDB database: ")  # Enter the URL of the MongoDB database.
