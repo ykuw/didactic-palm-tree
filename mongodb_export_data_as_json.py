@@ -4,12 +4,13 @@ import certifi
 
 ca = certifi.where()
 
+url = input("Enter the URL of the MongoDB database: ")  # Enter the URL of the MongoDB database.
 username = input("Enter the MongoDB username: ")  # Enter the MongoDB username.
 password = input("Enter the MongoDB password: ")  # Enter the MongoDB password.
 db_name = input("Enter the database name: ")  # Enter the database name.
 collection_name = input("Enter the collection name: ")  # Enter the collection name.
 
-client = MongoClient(f"mongodb+srv://{username}:{password}@l.ddi9w.mongodb.net/{db_name}?retryWrites"
+client = MongoClient(f"mongodb+srv://{username}:{password}@{url}/{db_name}?retryWrites"
                      f"=true&w=majority", tlsCAFile = ca)  # Enter the connection string.
 db = client[f"{db_name}"]  # Connect to the database.
 collection = db[f"{collection_name}"]  # Connect to the collection.
