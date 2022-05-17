@@ -16,7 +16,7 @@ db = client[f"{db_name}"]  # Connect to the database.
 collection = db[f"{collection_name}"]  # Connect to the collection.
 cursor = collection.find({})  # Get all the documents.
 
-with open(f"{collection_name}.json", "w") as file:  # Open the file.
+with open(f"collections/{collection_name}.json", "w") as file:  # Open the file.
     file.write('[')  # Write the opening bracket.
     for document in cursor:  # Loop through the documents.
         file.write(dumps(document))  # Write the document.
