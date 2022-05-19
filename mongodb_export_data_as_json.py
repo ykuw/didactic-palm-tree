@@ -1,14 +1,15 @@
 from bson.json_util import dumps
 from pymongo import MongoClient
 import certifi
+import sys
 
 # Author: "ykuw"
 # Email: "hurrays_coder_0r@icloud.com"
 # Description:
-# "This script is used to export data from MongoDB to JSON file."
-# "Create in the main directory where this script is located a directory named 'collections'."
-# "You have to provide the URL of MongoDB server, the name of the database, the name of the collection."
-# "The script will create a JSON file in the 'collections' directory with the name of the collection."
+#   "This script is used to export data from MongoDB to JSON file."
+#   "Create in the main directory where this script is located a directory named 'collections'."
+#   "You have to provide the URL of MongoDB server, the name of the database, the name of the collection."
+#   "The script will create a JSON file in the 'collections' directory with the name of the collection."
 
 ca = certifi.where()
 
@@ -17,6 +18,17 @@ username = input("Enter the MongoDB username: ")  # Enter the MongoDB username.
 password = input("Enter the MongoDB password: ")  # Enter the MongoDB password.
 db_name = input("Enter the database name: ")  # Enter the database name.
 collection_name = input("Enter the collection name: ")  # Enter the collection name.
+
+if not url:  # If the URL is empty, the script will exit.
+    sys.exit("You have to provide the URL of MongoDB server.")
+if not username:  # If the username is empty, the script will exit.
+    sys.exit("You have to provide the MongoDB username.")
+if not password:  # If the password is empty, the script will exit.
+    sys.exit("You have to provide the MongoDB password.")
+if not db_name:  # If the database name is empty, the script will exit.
+    sys.exit("You have to provide the database name.")
+if not collection_name:  # If the collection name is empty, the script will exit.
+    sys.exit("You have to provide the collection name.")
 
 client = MongoClient(f"mongodb+srv://{username}:{password}@{url}/{db_name}?retryWrites"
                      f"=true&w=majority", tlsCAFile = ca)  # Enter the connection string.
@@ -31,3 +43,6 @@ with open(f"collections/{collection_name}.json", "w") as file:  # Open the file.
         file.write(',')  # Write the comma.
     file.write(']')  # Write the closing bracket.
     print(f"Collection '{collection_name}' successfully exported.")  # Print the success message.
+
+file.close()  # Close the file.
+client.close()  # Close the connection.
